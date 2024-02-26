@@ -5,6 +5,7 @@ import 'package:core/presentation/resources/image_paths.dart';
 import 'package:core/presentation/utils/app_toast.dart';
 import 'package:core/presentation/utils/responsive_utils.dart';
 import 'package:core/utils/application_manager.dart';
+import 'package:core/utils/file_utils.dart';
 import 'package:flutter/widgets.dart' hide State;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -64,6 +65,7 @@ import 'identity_creator_controller_test.mocks.dart';
   MockSpec<IdentityUtils>(),
   MockSpec<DioClient>(),
   MockSpec<Executor>(),
+  MockSpec<FileUtils>(),
   MockSpec<RemoteExceptionThrower>(),
   MockSpec<DownloadClient>(),
   MockSpec<HtmlAnalyzer>(),
@@ -141,6 +143,7 @@ void main() {
 
     Get.put<DioClient>(MockDioClient(), tag: BindingTag.isolateTag);
     Get.put<Executor>(MockExecutor());
+    Get.put<FileUtils>(MockFileUtils());
     Get.put<RemoteExceptionThrower>(MockRemoteExceptionThrower());
     Get.put<DownloadClient>(MockDownloadClient());
     Get.put<HtmlAnalyzer>(MockHtmlAnalyzer());
