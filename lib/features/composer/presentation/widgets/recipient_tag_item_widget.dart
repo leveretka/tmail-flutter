@@ -1,9 +1,12 @@
+import 'package:core/presentation/action/popup_menu_action.dart';
 import 'package:core/presentation/extensions/color_extension.dart';
 import 'package:core/presentation/extensions/string_extension.dart';
 import 'package:core/presentation/resources/image_paths.dart';
 import 'package:core/presentation/utils/style_utils.dart';
 import 'package:core/presentation/views/avatar/gradient_circle_avatar_icon.dart';
 import 'package:core/presentation/views/button/tmail_button_widget.dart';
+import 'package:core/presentation/views/popup_menu/popup_menu_button_builder.dart';
+import 'package:core/utils/app_logger.dart';
 import 'package:core/utils/direction_utils.dart';
 import 'package:core/utils/platform_info.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +16,12 @@ import 'package:jmap_dart_client/jmap/mail/email/email_address.dart';
 import 'package:model/email/prefix_email_address.dart';
 import 'package:model/extensions/email_address_extension.dart';
 import 'package:tmail_ui_user/features/composer/presentation/model/draggable_email_address.dart';
+import 'package:tmail_ui_user/features/composer/presentation/model/recipient_action.dart';
 import 'package:tmail_ui_user/features/composer/presentation/styles/recipient_tag_item_widget_style.dart';
 import 'package:tmail_ui_user/features/composer/presentation/widgets/draggable_recipient_tag_widget.dart';
 import 'package:tmail_ui_user/features/composer/presentation/widgets/recipient_composer_widget.dart';
 import 'package:tmail_ui_user/features/email/presentation/utils/email_utils.dart';
+import 'package:tmail_ui_user/main/routes/route_navigation.dart';
 
 class RecipientTagItemWidget extends StatelessWidget {
 
@@ -70,34 +75,37 @@ class RecipientTagItemWidget extends StatelessWidget {
                     childWhenDragging: DraggableRecipientTagWidget(emailAddress: currentEmailAddress),
                     child: MouseRegion(
                       cursor: SystemMouseCursors.grab,
-                      child: Chip(
-                        labelPadding: EdgeInsetsDirectional.symmetric(
-                          horizontal: 4,
-                          vertical: DirectionUtils.isDirectionRTLByHasAnyRtl(currentEmailAddress.asString()) ? 0 : 2
+                      child: PopupMenuButtonBuilder<RecipientAction>(
+                        listAction: _buildListRecipientAction(context),
+                        child: Chip(
+                          labelPadding: EdgeInsetsDirectional.symmetric(
+                            horizontal: 4,
+                            vertical: DirectionUtils.isDirectionRTLByHasAnyRtl(currentEmailAddress.asString()) ? 0 : 2
+                          ),
+                          padding: EdgeInsets.zero,
+                          label: Text(
+                            currentEmailAddress.asString(),
+                            maxLines: 1,
+                            overflow: CommonTextStyle.defaultTextOverFlow,
+                            softWrap: CommonTextStyle.defaultSoftWrap,
+                          ),
+                          deleteIcon: SvgPicture.asset(_imagePaths.icClose, fit: BoxFit.fill),
+                          labelStyle: RecipientTagItemWidgetStyle.labelTextStyle,
+                          backgroundColor: _getTagBackgroundColor(),
+                          side: _getTagBorderSide(),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(RecipientTagItemWidgetStyle.radius)),
+                          ),
+                          avatar: currentEmailAddress.displayName.isNotEmpty
+                            ? GradientCircleAvatarIcon(
+                                colors: currentEmailAddress.avatarColors,
+                                label: currentEmailAddress.displayName.firstLetterToUpperCase,
+                                labelFontSize: RecipientTagItemWidgetStyle.avatarLabelFontSize,
+                                iconSize: RecipientTagItemWidgetStyle.avatarIconSize,
+                              )
+                            : null,
+                          onDeleted: () => onDeleteTagAction?.call(currentEmailAddress),
                         ),
-                        padding: EdgeInsets.zero,
-                        label: Text(
-                          currentEmailAddress.asString(),
-                          maxLines: 1,
-                          overflow: CommonTextStyle.defaultTextOverFlow,
-                          softWrap: CommonTextStyle.defaultSoftWrap,
-                        ),
-                        deleteIcon: SvgPicture.asset(_imagePaths.icClose, fit: BoxFit.fill),
-                        labelStyle: RecipientTagItemWidgetStyle.labelTextStyle,
-                        backgroundColor: _getTagBackgroundColor(),
-                        side: _getTagBorderSide(),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(RecipientTagItemWidgetStyle.radius)),
-                        ),
-                        avatar: currentEmailAddress.displayName.isNotEmpty
-                          ? GradientCircleAvatarIcon(
-                              colors: currentEmailAddress.avatarColors,
-                              label: currentEmailAddress.displayName.firstLetterToUpperCase,
-                              labelFontSize: RecipientTagItemWidgetStyle.avatarLabelFontSize,
-                              iconSize: RecipientTagItemWidgetStyle.avatarIconSize,
-                            )
-                          : null,
-                        onDeleted: () => onDeleteTagAction?.call(currentEmailAddress),
                       ),
                     ),
                   )
@@ -191,5 +199,21 @@ class RecipientTagItemWidget extends StatelessWidget {
         color: AppColor.colorBorderEmailAddressInvalid
       );
     }
+  }
+
+  List<PopupMenuAction<RecipientAction>> _buildListRecipientAction(BuildContext context) {
+    return RecipientAction.values
+      .map((action) => PopupMenuAction<RecipientAction>(
+        name: action.getTitle(context),
+        value: action,
+        icon: action.getIcon(_imagePaths),
+        onSelected: _onSelectRecipientAction,
+      ))
+      .toList();
+  }
+
+  void _onSelectRecipientAction(RecipientAction recipientAction) {
+    popBack();
+    log('RecipientTagItemWidget::_onSelectRecipientAction: recipientAction = $recipientAction');
   }
 }

@@ -14,8 +14,8 @@ mixin UserSettingPopupMenuMixin {
     BuildContext context,
     UserName? userName,
     {
-      Function? onLogoutAction,
-      Function? onSettingAction
+      VoidCallback? onLogoutAction,
+      VoidCallback? onSettingAction
     }
   ) {
     return [
