@@ -153,69 +153,74 @@ class _RecipientComposerWidgetState extends State<RecipientComposerWidget> {
                       if (PlatformInfo.isWeb) {
                         return DragTarget<DraggableEmailAddress>(
                           builder: (context, candidateData, rejectedData) {
-                            return TagEditor<SuggestionEmailAddress>(
-                              key: widget.keyTagEditor,
-                              length: _collapsedListEmailAddress.length,
-                              controller: widget.controller,
-                              focusNode: widget.focusNode,
-                              enableBorder: _isDragging,
-                              borderRadius: RecipientComposerWidgetStyle.enableBorderRadius,
-                              enableBorderColor: RecipientComposerWidgetStyle.enableBorderColor,
-                              keyboardType: TextInputType.emailAddress,
-                              textInputAction: TextInputAction.done,
-                              debounceDuration: RecipientComposerWidgetStyle.suggestionDebounceDuration,
-                              tagSpacing: RecipientComposerWidgetStyle.tagSpacing,
-                              autofocus: widget.prefix != PrefixEmailAddress.to && _currentListEmailAddress.isEmpty,
-                              minTextFieldWidth: RecipientComposerWidgetStyle.minTextFieldWidth,
-                              resetTextOnSubmitted: true,
-                              autoScrollToInput: false,
-                              cursorColor: RecipientComposerWidgetStyle.cursorColor,
-                              suggestionsBoxElevation: RecipientComposerWidgetStyle.suggestionsBoxElevation,
-                              suggestionsBoxBackgroundColor: RecipientComposerWidgetStyle.suggestionsBoxBackgroundColor,
-                              suggestionsBoxRadius: RecipientComposerWidgetStyle.suggestionsBoxRadius,
-                              suggestionsBoxMaxHeight: RecipientComposerWidgetStyle.suggestionsBoxMaxHeight,
-                              suggestionBoxWidth: _getSuggestionBoxWidth(constraints.maxWidth),
-                              textStyle: RecipientComposerWidgetStyle.inputTextStyle,
-                              onFocusTagAction: (focused) => _handleFocusTagAction.call(focused, stateSetter),
-                              onDeleteTagAction: () => _handleDeleteLatestTagAction.call(stateSetter),
-                              onSelectOptionAction: (item) => _handleSelectOptionAction.call(item, stateSetter),
-                              onSubmitted: (value) => _handleSubmitTagAction.call(value, stateSetter),
-                              onTapOutside: (_) {},
-                              inputDecoration: const InputDecoration(border: InputBorder.none),
-                              tagBuilder: (context, index) {
-                                final currentEmailAddress = _currentListEmailAddress[index];
-                                final isLatestEmail = currentEmailAddress == _currentListEmailAddress.last;
+                            return GestureDetector(
+                              onTap: () => _isCollapse
+                                ? widget.onShowFullListEmailAddressAction?.call(widget.prefix)
+                                : null,
+                              child: TagEditor<SuggestionEmailAddress>(
+                                key: widget.keyTagEditor,
+                                length: _collapsedListEmailAddress.length,
+                                controller: widget.controller,
+                                focusNode: widget.focusNode,
+                                enableBorder: _isDragging,
+                                borderRadius: RecipientComposerWidgetStyle.enableBorderRadius,
+                                enableBorderColor: RecipientComposerWidgetStyle.enableBorderColor,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.done,
+                                debounceDuration: RecipientComposerWidgetStyle.suggestionDebounceDuration,
+                                tagSpacing: RecipientComposerWidgetStyle.tagSpacing,
+                                autofocus: widget.prefix != PrefixEmailAddress.to && _currentListEmailAddress.isEmpty,
+                                minTextFieldWidth: RecipientComposerWidgetStyle.minTextFieldWidth,
+                                resetTextOnSubmitted: true,
+                                autoScrollToInput: false,
+                                cursorColor: RecipientComposerWidgetStyle.cursorColor,
+                                suggestionsBoxElevation: RecipientComposerWidgetStyle.suggestionsBoxElevation,
+                                suggestionsBoxBackgroundColor: RecipientComposerWidgetStyle.suggestionsBoxBackgroundColor,
+                                suggestionsBoxRadius: RecipientComposerWidgetStyle.suggestionsBoxRadius,
+                                suggestionsBoxMaxHeight: RecipientComposerWidgetStyle.suggestionsBoxMaxHeight,
+                                suggestionBoxWidth: _getSuggestionBoxWidth(constraints.maxWidth),
+                                textStyle: RecipientComposerWidgetStyle.inputTextStyle,
+                                onFocusTagAction: (focused) => _handleFocusTagAction.call(focused, stateSetter),
+                                onDeleteTagAction: () => _handleDeleteLatestTagAction.call(stateSetter),
+                                onSelectOptionAction: (item) => _handleSelectOptionAction.call(item, stateSetter),
+                                onSubmitted: (value) => _handleSubmitTagAction.call(value, stateSetter),
+                                onTapOutside: (_) {},
+                                inputDecoration: const InputDecoration(border: InputBorder.none),
+                                tagBuilder: (context, index) {
+                                  final currentEmailAddress = _currentListEmailAddress[index];
+                                  final isLatestEmail = currentEmailAddress == _currentListEmailAddress.last;
 
-                                return RecipientTagItemWidget(
-                                  prefix: widget.prefix,
-                                  currentEmailAddress: currentEmailAddress,
-                                  currentListEmailAddress: _currentListEmailAddress,
-                                  collapsedListEmailAddress: _collapsedListEmailAddress,
-                                  isLatestEmail: isLatestEmail,
-                                  isCollapsed: _isCollapse,
-                                  isLatestTagFocused: _lastTagFocused,
-                                  maxWidth: constraints.maxWidth,
-                                  onDeleteTagAction: (emailAddress) => _handleDeleteTagAction.call(emailAddress, stateSetter),
-                                  onShowFullAction: widget.onShowFullListEmailAddressAction,
-                                );
-                              },
-                              onTagChanged: (value) => _handleOnTagChangeAction.call(value, stateSetter),
-                              findSuggestions: _findSuggestions,
-                              useDefaultHighlight: false,
-                              suggestionBuilder: (context, tagEditorState, suggestionEmailAddress, index, length, highlight, suggestionValid) {
-                                return RecipientSuggestionItemWidget(
-                                  suggestionState: suggestionEmailAddress.state,
-                                  emailAddress: suggestionEmailAddress.emailAddress,
-                                  suggestionValid: suggestionValid,
-                                  highlight: highlight,
-                                  onSelectedAction: (emailAddress) {
-                                    stateSetter(() => _currentListEmailAddress.add(emailAddress));
-                                    _updateListEmailAddressAction();
-                                    tagEditorState.resetTextField();
-                                    tagEditorState.closeSuggestionBox();
-                                  },
-                                );
-                              },
+                                  return RecipientTagItemWidget(
+                                    prefix: widget.prefix,
+                                    currentEmailAddress: currentEmailAddress,
+                                    currentListEmailAddress: _currentListEmailAddress,
+                                    collapsedListEmailAddress: _collapsedListEmailAddress,
+                                    isLatestEmail: isLatestEmail,
+                                    isCollapsed: _isCollapse,
+                                    isLatestTagFocused: _lastTagFocused,
+                                    maxWidth: constraints.maxWidth,
+                                    onDeleteTagAction: (emailAddress) => _handleDeleteTagAction.call(emailAddress, stateSetter),
+                                    onShowFullAction: widget.onShowFullListEmailAddressAction,
+                                  );
+                                },
+                                onTagChanged: (value) => _handleOnTagChangeAction.call(value, stateSetter),
+                                findSuggestions: _findSuggestions,
+                                useDefaultHighlight: false,
+                                suggestionBuilder: (context, tagEditorState, suggestionEmailAddress, index, length, highlight, suggestionValid) {
+                                  return RecipientSuggestionItemWidget(
+                                    suggestionState: suggestionEmailAddress.state,
+                                    emailAddress: suggestionEmailAddress.emailAddress,
+                                    suggestionValid: suggestionValid,
+                                    highlight: highlight,
+                                    onSelectedAction: (emailAddress) {
+                                      stateSetter(() => _currentListEmailAddress.add(emailAddress));
+                                      _updateListEmailAddressAction();
+                                      tagEditorState.resetTextField();
+                                      tagEditorState.closeSuggestionBox();
+                                    },
+                                  );
+                                },
+                              ),
                             );
                           },
                           onAccept: (draggableEmailAddress) => _handleAcceptDraggableEmailAddressAction(draggableEmailAddress, stateSetter),
@@ -231,66 +236,71 @@ class _RecipientComposerWidgetState extends State<RecipientComposerWidget> {
                           },
                         );
                       } else {
-                        return TagEditor<SuggestionEmailAddress>(
-                          key: widget.keyTagEditor,
-                          length: _collapsedListEmailAddress.length,
-                          controller: widget.controller,
-                          focusNode: widget.focusNode,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.done,
-                          debounceDuration: RecipientComposerWidgetStyle.suggestionDebounceDuration,
-                          tagSpacing: RecipientComposerWidgetStyle.tagSpacing,
-                          autofocus: widget.prefix != PrefixEmailAddress.to && _currentListEmailAddress.isEmpty,
-                          minTextFieldWidth: RecipientComposerWidgetStyle.minTextFieldWidth,
-                          resetTextOnSubmitted: true,
-                          autoScrollToInput: false,
-                          cursorColor: RecipientComposerWidgetStyle.cursorColor,
-                          suggestionsBoxElevation: RecipientComposerWidgetStyle.suggestionsBoxElevation,
-                          suggestionsBoxBackgroundColor: RecipientComposerWidgetStyle.suggestionsBoxBackgroundColor,
-                          suggestionsBoxRadius: RecipientComposerWidgetStyle.suggestionsBoxRadius,
-                          suggestionsBoxMaxHeight: RecipientComposerWidgetStyle.suggestionsBoxMaxHeight,
-                          suggestionBoxWidth: _getSuggestionBoxWidth(constraints.maxWidth),
-                          textStyle: RecipientComposerWidgetStyle.inputTextStyle,
-                          onFocusTagAction: (focused) => _handleFocusTagAction.call(focused, stateSetter),
-                          onDeleteTagAction: () => _handleDeleteLatestTagAction.call(stateSetter),
-                          onSelectOptionAction: (item) => _handleSelectOptionAction.call(item, stateSetter),
-                          onSubmitted: (value) => _handleSubmitTagAction.call(value, stateSetter),
-                          onTapOutside: (_) {},
-                          inputDecoration: const InputDecoration(border: InputBorder.none),
-                          tagBuilder: (context, index) {
-                            final currentEmailAddress = _currentListEmailAddress[index];
-                            final isLatestEmail = currentEmailAddress == _currentListEmailAddress.last;
+                        return GestureDetector(
+                          onTap: () => _isCollapse
+                            ? widget.onShowFullListEmailAddressAction?.call(widget.prefix)
+                            : null,
+                          child: TagEditor<SuggestionEmailAddress>(
+                            key: widget.keyTagEditor,
+                            length: _collapsedListEmailAddress.length,
+                            controller: widget.controller,
+                            focusNode: widget.focusNode,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.done,
+                            debounceDuration: RecipientComposerWidgetStyle.suggestionDebounceDuration,
+                            tagSpacing: RecipientComposerWidgetStyle.tagSpacing,
+                            autofocus: widget.prefix != PrefixEmailAddress.to && _currentListEmailAddress.isEmpty,
+                            minTextFieldWidth: RecipientComposerWidgetStyle.minTextFieldWidth,
+                            resetTextOnSubmitted: true,
+                            autoScrollToInput: false,
+                            cursorColor: RecipientComposerWidgetStyle.cursorColor,
+                            suggestionsBoxElevation: RecipientComposerWidgetStyle.suggestionsBoxElevation,
+                            suggestionsBoxBackgroundColor: RecipientComposerWidgetStyle.suggestionsBoxBackgroundColor,
+                            suggestionsBoxRadius: RecipientComposerWidgetStyle.suggestionsBoxRadius,
+                            suggestionsBoxMaxHeight: RecipientComposerWidgetStyle.suggestionsBoxMaxHeight,
+                            suggestionBoxWidth: _getSuggestionBoxWidth(constraints.maxWidth),
+                            textStyle: RecipientComposerWidgetStyle.inputTextStyle,
+                            onFocusTagAction: (focused) => _handleFocusTagAction.call(focused, stateSetter),
+                            onDeleteTagAction: () => _handleDeleteLatestTagAction.call(stateSetter),
+                            onSelectOptionAction: (item) => _handleSelectOptionAction.call(item, stateSetter),
+                            onSubmitted: (value) => _handleSubmitTagAction.call(value, stateSetter),
+                            onTapOutside: (_) {},
+                            inputDecoration: const InputDecoration(border: InputBorder.none),
+                            tagBuilder: (context, index) {
+                              final currentEmailAddress = _currentListEmailAddress[index];
+                              final isLatestEmail = currentEmailAddress == _currentListEmailAddress.last;
 
-                            return RecipientTagItemWidget(
-                              prefix: widget.prefix,
-                              currentEmailAddress: currentEmailAddress,
-                              currentListEmailAddress: _currentListEmailAddress,
-                              collapsedListEmailAddress: _collapsedListEmailAddress,
-                              isLatestEmail: isLatestEmail,
-                              isCollapsed: _isCollapse,
-                              isLatestTagFocused: _lastTagFocused,
-                              maxWidth: constraints.maxWidth,
-                              onDeleteTagAction: (emailAddress) => _handleDeleteTagAction.call(emailAddress, stateSetter),
-                              onShowFullAction: widget.onShowFullListEmailAddressAction,
-                            );
-                          },
-                          onTagChanged: (value) => _handleOnTagChangeAction.call(value, stateSetter),
-                          findSuggestions: _findSuggestions,
-                          useDefaultHighlight: false,
-                          suggestionBuilder: (context, tagEditorState, suggestionEmailAddress, index, length, highlight, suggestionValid) {
-                            return RecipientSuggestionItemWidget(
-                              suggestionState: suggestionEmailAddress.state,
-                              emailAddress: suggestionEmailAddress.emailAddress,
-                              suggestionValid: suggestionValid,
-                              highlight: highlight,
-                              onSelectedAction: (emailAddress) {
-                                stateSetter(() => _currentListEmailAddress.add(emailAddress));
-                                _updateListEmailAddressAction();
-                                tagEditorState.resetTextField();
-                                tagEditorState.closeSuggestionBox();
-                              },
-                            );
-                          },
+                              return RecipientTagItemWidget(
+                                prefix: widget.prefix,
+                                currentEmailAddress: currentEmailAddress,
+                                currentListEmailAddress: _currentListEmailAddress,
+                                collapsedListEmailAddress: _collapsedListEmailAddress,
+                                isLatestEmail: isLatestEmail,
+                                isCollapsed: _isCollapse,
+                                isLatestTagFocused: _lastTagFocused,
+                                maxWidth: constraints.maxWidth,
+                                onDeleteTagAction: (emailAddress) => _handleDeleteTagAction.call(emailAddress, stateSetter),
+                                onShowFullAction: widget.onShowFullListEmailAddressAction,
+                              );
+                            },
+                            onTagChanged: (value) => _handleOnTagChangeAction.call(value, stateSetter),
+                            findSuggestions: _findSuggestions,
+                            useDefaultHighlight: false,
+                            suggestionBuilder: (context, tagEditorState, suggestionEmailAddress, index, length, highlight, suggestionValid) {
+                              return RecipientSuggestionItemWidget(
+                                suggestionState: suggestionEmailAddress.state,
+                                emailAddress: suggestionEmailAddress.emailAddress,
+                                suggestionValid: suggestionValid,
+                                highlight: highlight,
+                                onSelectedAction: (emailAddress) {
+                                  stateSetter(() => _currentListEmailAddress.add(emailAddress));
+                                  _updateListEmailAddressAction();
+                                  tagEditorState.resetTextField();
+                                  tagEditorState.closeSuggestionBox();
+                                },
+                              );
+                            },
+                          ),
                         );
                       }
                     },
