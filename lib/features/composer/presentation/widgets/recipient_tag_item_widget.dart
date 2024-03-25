@@ -35,6 +35,7 @@ class RecipientTagItemWidget extends StatelessWidget {
   final List<EmailAddress> collapsedListEmailAddress;
   final OnShowFullListEmailAddressAction? onShowFullAction;
   final OnDeleteTagAction? onDeleteTagAction;
+  final OnSelectRecipientAction? onSelectRecipientAction;
 
   final _imagePaths = Get.find<ImagePaths>();
 
@@ -50,6 +51,7 @@ class RecipientTagItemWidget extends StatelessWidget {
     this.onShowFullAction,
     this.onDeleteTagAction,
     this.maxWidth,
+    this.onSelectRecipientAction,
   });
 
   @override
@@ -208,5 +210,6 @@ class RecipientTagItemWidget extends StatelessWidget {
   void _onSelectRecipientAction(RecipientAction recipientAction) {
     popBack();
     log('RecipientTagItemWidget::_onSelectRecipientAction: recipientAction = $recipientAction');
+    onSelectRecipientAction?.call(recipientAction, prefix, currentEmailAddress);
   }
 }

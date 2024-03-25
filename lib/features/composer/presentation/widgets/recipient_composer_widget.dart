@@ -19,6 +19,7 @@ import 'package:super_tag_editor/tag_editor.dart';
 import 'package:tmail_ui_user/features/composer/presentation/extensions/prefix_email_address_extension.dart';
 import 'package:tmail_ui_user/features/composer/presentation/model/draggable_email_address.dart';
 import 'package:tmail_ui_user/features/composer/presentation/model/prefix_recipient_state.dart';
+import 'package:tmail_ui_user/features/composer/presentation/model/recipient_action.dart';
 import 'package:tmail_ui_user/features/composer/presentation/model/suggestion_email_address.dart';
 import 'package:tmail_ui_user/features/composer/presentation/styles/recipient_composer_widget_style.dart';
 import 'package:tmail_ui_user/features/composer/presentation/widgets/recipient_suggestion_item_widget.dart';
@@ -34,6 +35,7 @@ typedef OnShowFullListEmailAddressAction = void Function(PrefixEmailAddress pref
 typedef OnFocusEmailAddressChangeAction = void Function(PrefixEmailAddress prefix, bool isFocus);
 typedef OnRemoveDraggableEmailAddressAction = void Function(DraggableEmailAddress draggableEmailAddress);
 typedef OnDeleteTagAction = void Function(EmailAddress emailAddress);
+typedef OnSelectRecipientAction = void Function(RecipientAction action, PrefixEmailAddress prefix, EmailAddress emailAddress);
 
 class RecipientComposerWidget extends StatefulWidget {
 
@@ -55,6 +57,7 @@ class RecipientComposerWidget extends StatefulWidget {
   final OnShowFullListEmailAddressAction? onShowFullListEmailAddressAction;
   final OnFocusEmailAddressChangeAction? onFocusEmailAddressChangeAction;
   final OnRemoveDraggableEmailAddressAction? onRemoveDraggableEmailAddressAction;
+  final OnSelectRecipientAction? onSelectRecipientAction;
   final VoidCallback? onFocusNextAddressAction;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
@@ -82,6 +85,7 @@ class RecipientComposerWidget extends StatefulWidget {
     this.onFocusEmailAddressChangeAction,
     this.onFocusNextAddressAction,
     this.onRemoveDraggableEmailAddressAction,
+    this.onSelectRecipientAction,
   });
 
   @override
@@ -201,6 +205,14 @@ class _RecipientComposerWidgetState extends State<RecipientComposerWidget> {
                                     maxWidth: constraints.maxWidth,
                                     onDeleteTagAction: (emailAddress) => _handleDeleteTagAction.call(emailAddress, stateSetter),
                                     onShowFullAction: widget.onShowFullListEmailAddressAction,
+                                    onSelectRecipientAction: (action, prefix, emailAddress) {
+                                      _handleSelectRecipientAction(
+                                        action: action,
+                                        prefix: prefix,
+                                        emailAddress: emailAddress,
+                                        stateSetter: stateSetter
+                                      );
+                                    },
                                   );
                                 },
                                 onTagChanged: (value) => _handleOnTagChangeAction.call(value, stateSetter),
@@ -281,6 +293,14 @@ class _RecipientComposerWidgetState extends State<RecipientComposerWidget> {
                                 maxWidth: constraints.maxWidth,
                                 onDeleteTagAction: (emailAddress) => _handleDeleteTagAction.call(emailAddress, stateSetter),
                                 onShowFullAction: widget.onShowFullListEmailAddressAction,
+                                onSelectRecipientAction: (action, prefix, emailAddress) {
+                                  _handleSelectRecipientAction(
+                                    action: action,
+                                    prefix: prefix,
+                                    emailAddress: emailAddress,
+                                    stateSetter: stateSetter
+                                  );
+                                },
                               );
                             },
                             onTagChanged: (value) => _handleOnTagChangeAction.call(value, stateSetter),
@@ -510,5 +530,48 @@ class _RecipientComposerWidgetState extends State<RecipientComposerWidget> {
     } else {
       return null;
     }
+  }
+
+  void _handleSelectRecipientAction({
+    required RecipientAction action,
+    required PrefixEmailAddress prefix,
+    required EmailAddress emailAddress,
+    required StateSetter stateSetter,
+  }) {
+    switch(action) {
+      case RecipientAction.changeEmailAddress:
+        _handleChangeEmailAddress(
+          prefix: prefix,
+          emailAddress: emailAddress,
+          stateSetter: stateSetter
+        );
+        break;
+    }
+    widget.onSelectRecipientAction?.call(action, prefix, emailAddress);
+  }
+
+  void _handleChangeEmailAddress({
+    required PrefixEmailAddress prefix,
+    required EmailAddress emailAddress,
+    required StateSetter stateSetter,
+  }) {
+    if (_currentListEmailAddress.isNotEmpty) {
+      stateSetter(() => _currentListEmailAddress.remove(emailAddress));
+      _updateListEmailAddressAction();
+    }
+
+    if (widget.controller != null) {
+      widget.controller!.text = emailAddress.emailAddress;
+      widget.controller!.value = widget.controller!.value.copyWith(
+        text: emailAddress.emailAddress,
+        selection: TextSelection(
+          baseOffset: emailAddress.emailAddress.length,
+          extentOffset: emailAddress.emailAddress.length,
+        ),
+        composing: TextRange.empty
+      );
+    }
+
+    widget.focusNode?.requestFocus();
   }
 }
