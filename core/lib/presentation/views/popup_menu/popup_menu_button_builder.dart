@@ -53,7 +53,7 @@ class _PopupMenuButtonBuilderState<T> extends State<PopupMenuButtonBuilder<T>> {
       tooltip: '',
       constraints: const BoxConstraints(minWidth: 256),
       itemBuilder: (_) => widget.listAction
-        .map((action) => _buildPopupMenuItem(context, action))
+        .map(_buildPopupMenuItem)
         .toList(),
       child: widget.isSelectedHighlight
         ? ValueListenableBuilder(
@@ -64,7 +64,7 @@ class _PopupMenuButtonBuilderState<T> extends State<PopupMenuButtonBuilder<T>> {
     );
   }
 
-  PopupMenuEntry<T> _buildPopupMenuItem(BuildContext context, PopupMenuAction<T> action) {
+  PopupMenuEntry<T> _buildPopupMenuItem(PopupMenuAction<T> action) {
     return PopupMenuItem(
       padding: EdgeInsets.zero,
       height: 36,
