@@ -1324,4 +1324,11 @@ class ThreadController extends BaseController with EmailActionController {
       _loadMoreEmails();
     }
   }
+
+  bool validateToShowSelectionEmailsBanner() {
+    return isSelectionEnabled()
+      && mailboxDashBoardController.selectedMailbox.value != null
+      && mailboxDashBoardController.selectedMailbox.value!.totalEmails != null
+      && mailboxDashBoardController.listEmailSelected.length < mailboxDashBoardController.selectedMailbox.value!.totalEmails!.value.value.toInt();
+  }
 }
