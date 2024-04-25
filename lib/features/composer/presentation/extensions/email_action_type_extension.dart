@@ -133,6 +133,12 @@ extension EmailActionTypeExtension on EmailActionType {
         return imagePaths.icUnsubscribe;
       case EmailActionType.archiveMessage:
         return imagePaths.icMailboxArchived;
+      case EmailActionType.markAsRead:
+        return imagePaths.icRead;
+      case EmailActionType.moveToMailbox:
+        return imagePaths.icMove;
+      case EmailActionType.moveToTrash:
+        return imagePaths.icDeleteComposer;
       default:
         return '';
     }
@@ -152,6 +158,12 @@ extension EmailActionTypeExtension on EmailActionType {
         return AppLocalizations.of(context).unsubscribe;
       case EmailActionType.archiveMessage:
         return AppLocalizations.of(context).archiveMessage;
+      case EmailActionType.markAsRead:
+        return AppLocalizations.of(context).mark_as_read;
+      case EmailActionType.moveToMailbox:
+        return AppLocalizations.of(context).move;
+      case EmailActionType.moveToTrash:
+        return AppLocalizations.of(context).move_to_trash;
       default:
         return '';
     }
