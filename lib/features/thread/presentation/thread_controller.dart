@@ -7,6 +7,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:jmap_dart_client/jmap/account_id.dart';
 import 'package:jmap_dart_client/jmap/core/session/session.dart';
@@ -34,6 +35,7 @@ import 'package:tmail_ui_user/features/email/domain/state/unsubscribe_email_stat
 import 'package:tmail_ui_user/features/email/presentation/action/email_ui_action.dart';
 import 'package:tmail_ui_user/features/email/presentation/utils/email_utils.dart';
 import 'package:tmail_ui_user/features/mailbox/domain/state/mark_as_mailbox_read_state.dart';
+import 'package:tmail_ui_user/features/mailbox/presentation/extensions/presentation_mailbox_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/state/remove_email_drafts_state.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/dashboard_action.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/search_controller.dart' as search;
@@ -275,7 +277,19 @@ class ThreadController extends BaseController with EmailActionController, PopupM
         filterMessagesAction(action.context, action.option);
         mailboxDashBoardController.clearDashBoardAction();
       } else if (action is HandleEmailActionTypeAction) {
-        pressEmailSelectionAction(action.context, action.emailAction, action.listEmailSelected);
+        if (_validateToShowConfirmBulkActionEmailsDialog()) {
+          _showConfirmDialogWhenMakeToActionForSelectionAllEmails(
+            context: action.context,
+            totalEmails: mailboxDashBoardController.selectedMailbox.value!.totalEmails!.value.value.toInt(),
+            folderName: mailboxDashBoardController.selectedMailbox.value!.getDisplayName(action.context),
+            actionType: action.emailAction
+          );
+        } else {
+          pressEmailSelectionAction(
+            action.context,
+            action.emailAction,
+            action.listEmailSelected);
+        }
         mailboxDashBoardController.clearDashBoardAction();
       } else if (action is OpenEmailDetailedFromSuggestionQuickSearchAction) {
         final mailboxContain = action.presentationEmail.findMailboxContain(mailboxDashBoardController.mapMailboxById);
@@ -1360,9 +1374,42 @@ class ThreadController extends BaseController with EmailActionController, PopupM
             fontSize: 14,
             color: Colors.black
           ),
-          onCallbackAction: () {}
+          onCallbackAction: () {
+            popBack();
+
+            if (!isSearchActive) {
+              _showConfirmDialogWhenMakeToActionForSelectionAllEmails(
+                context: context,
+                totalEmails: mailboxDashBoardController.selectedMailbox.value!.totalEmails!.value.value.toInt(),
+                folderName: mailboxDashBoardController.selectedMailbox.value!.getDisplayName(context),
+                actionType: action
+              );
+            }
+          }
         )
       )).toList()
+    );
+  }
+
+  bool _validateToShowConfirmBulkActionEmailsDialog() {
+    return mailboxDashBoardController.isSelectAllEmailsEnabled.isTrue;
+  }
+
+  Future<void> _showConfirmDialogWhenMakeToActionForSelectionAllEmails({
+    required BuildContext context,
+    required int totalEmails,
+    required String folderName,
+    required EmailActionType actionType
+  }) async {
+    await showConfirmDialogAction(
+      context,
+      AppLocalizations.of(context).messageConfirmationDialogWhenMakeToActionForSelectionAllEmailsInMailbox(totalEmails, folderName),
+      AppLocalizations.of(context).ok,
+      title: AppLocalizations.of(context).confirmBulkAction,
+      icon: SvgPicture.asset(
+        imagePaths.icQuotasWarning,
+        colorFilter: AppColor.colorBackgroundQuotasWarning.asFilter()
+      ),
     );
   }
 }
