@@ -487,20 +487,12 @@ class MailboxDashBoardView extends BaseMailboxDashBoardView {
           (success) {
             if (success is MarkAsMailboxReadLoading) {
               return Padding(
-                  padding: EdgeInsets.only(
-                      top: controller.responsiveUtils.isDesktop(context) ? 16 : 0,
-                      left: 16,
-                      right: 16,
-                      bottom: controller.responsiveUtils.isDesktop(context) ? 0 : 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: horizontalLoadingWidget);
             } else if (success is UpdatingMarkAsMailboxReadState) {
               final percent = success.countRead / success.totalUnread;
               return Padding(
-                  padding: EdgeInsets.only(
-                      top: controller.responsiveUtils.isDesktop(context) ? 16 : 0,
-                      left: 16,
-                      right: 16,
-                      bottom: controller.responsiveUtils.isDesktop(context) ? 0 : 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: horizontalPercentLoadingWidget(percent));
             }
             return const SizedBox.shrink();

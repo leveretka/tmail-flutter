@@ -280,8 +280,7 @@ class ThreadController extends BaseController with EmailActionController, PopupM
         if (_validateToShowConfirmBulkActionEmailsDialog()) {
           _showConfirmDialogWhenMakeToActionForSelectionAllEmails(
             context: action.context,
-            totalEmails: mailboxDashBoardController.selectedMailbox.value!.totalEmails!.value.value.toInt(),
-            folderName: mailboxDashBoardController.selectedMailbox.value!.getDisplayName(action.context),
+            selectedMailbox: mailboxDashBoardController.selectedMailbox.value!,
             actionType: action.emailAction
           );
         } else {
@@ -1354,7 +1353,7 @@ class ThreadController extends BaseController with EmailActionController, PopupM
 
   void showPopupMenuSelectionEmailAction(BuildContext context, RelativeRect position) {
     final listSelectionEmailActions = [
-      EmailActionType.markAsRead,
+      EmailActionType.markAllAsRead,
       EmailActionType.markAsUnread,
       EmailActionType.moveToMailbox,
       EmailActionType.moveToTrash,
@@ -1380,8 +1379,7 @@ class ThreadController extends BaseController with EmailActionController, PopupM
             if (!isSearchActive) {
               _showConfirmDialogWhenMakeToActionForSelectionAllEmails(
                 context: context,
-                totalEmails: mailboxDashBoardController.selectedMailbox.value!.totalEmails!.value.value.toInt(),
-                folderName: mailboxDashBoardController.selectedMailbox.value!.getDisplayName(context),
+                selectedMailbox: mailboxDashBoardController.selectedMailbox.value!,
                 actionType: action
               );
             }
@@ -1397,10 +1395,12 @@ class ThreadController extends BaseController with EmailActionController, PopupM
 
   Future<void> _showConfirmDialogWhenMakeToActionForSelectionAllEmails({
     required BuildContext context,
-    required int totalEmails,
-    required String folderName,
+    required PresentationMailbox selectedMailbox,
     required EmailActionType actionType
   }) async {
+    final totalEmails = selectedMailbox.totalEmails?.value.value.toInt() ?? 0;
+    final folderName = selectedMailbox.getDisplayName(context);
+
     await showConfirmDialogAction(
       context,
       AppLocalizations.of(context).messageConfirmationDialogWhenMakeToActionForSelectionAllEmailsInMailbox(totalEmails, folderName),
@@ -1410,6 +1410,39 @@ class ThreadController extends BaseController with EmailActionController, PopupM
         imagePaths.icQuotasWarning,
         colorFilter: AppColor.colorBackgroundQuotasWarning.asFilter()
       ),
+      onConfirmAction: () {
+        _handleActionsForSelectionAllEmails(
+          context: context,
+          selectedMailbox: selectedMailbox,
+          actionType: actionType
+        );
+      }
     );
+  }
+
+  void _handleActionsForSelectionAllEmails({
+    required BuildContext context,
+    required PresentationMailbox selectedMailbox,
+    required EmailActionType actionType
+  }) {
+    if (_session == null || _accountId == null) {
+      logError('ThreadController::_handleActionsForSelectionAllEmails: SESSION & ACCOUNT_ID is null');
+      return;
+    }
+
+    switch(actionType) {
+      case EmailActionType.markAllAsRead:
+        cancelSelectEmail();
+        mailboxDashBoardController.markAsReadMailbox(
+          _session!,
+          _accountId!,
+          selectedMailbox.mailboxId!,
+          selectedMailbox.getDisplayName(context),
+          selectedMailbox.unreadEmails?.value.value.toInt() ?? 0
+        );
+        break;
+      default:
+        break;
+    }
   }
 }
