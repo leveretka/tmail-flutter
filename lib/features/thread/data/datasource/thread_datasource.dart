@@ -81,4 +81,12 @@ abstract class ThreadDataSource {
       bool isDestinationSpamMailbox = false
     }
   );
+
+  Future<List<EmailId>> deleteAllPermanentlyEmails(
+    Session session,
+    AccountId accountId,
+    MailboxId mailboxId,
+    int totalEmails,
+    StreamController<dartz.Either<Failure, Success>> onProgressController,
+  );
 }

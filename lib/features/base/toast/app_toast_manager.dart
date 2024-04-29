@@ -5,6 +5,7 @@ import 'package:core/presentation/state/success.dart';
 import 'package:core/presentation/utils/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:tmail_ui_user/features/mailbox/domain/state/mark_as_mailbox_read_state.dart';
+import 'package:tmail_ui_user/features/thread/domain/state/delete_all_permanently_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_unread_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/move_all_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/main/localizations/app_localizations.dart';
@@ -52,6 +53,10 @@ class AppToastManager {
         AppLocalizations.of(context).toastMessageMoveAllSelectionAllEmailsHasSomeEmailFailure(success.countEmailsMoved, success.destinationPath),
         leadingSVGIconColor: Colors.white,
         leadingSVGIcon: _imagePaths.icFolderMailbox);
+    } else if (success is DeleteAllPermanentlyEmailsSuccess) {
+      _appToast.showToastSuccessMessage(
+        overlayContext,
+        AppLocalizations.of(context).toast_message_empty_trash_folder_success);
     }
   }
 
@@ -92,6 +97,12 @@ class AppToastManager {
       _appToast.showToastErrorMessage(
         overlayContext,
         AppLocalizations.of(context).toastMessageMoveAllSelectionAllEmailsAllFailure(failure.destinationPath));
+    } else if (failure is DeleteAllPermanentlyEmailsFailure) {
+      _appToast.showToastSuccessMessage(
+        overlayContext,
+        AppLocalizations.of(context).toastMessageDeleteAllPermanentlyEmailsFailureWithReason(
+          failure.exception.toString()
+        ));
     }
   }
 }

@@ -54,6 +54,7 @@ import 'package:tmail_ui_user/features/thread/domain/model/email_filter.dart';
 import 'package:tmail_ui_user/features/thread/domain/model/filter_message_option.dart';
 import 'package:tmail_ui_user/features/thread/domain/model/get_email_request.dart';
 import 'package:tmail_ui_user/features/thread/domain/model/search_query.dart';
+import 'package:tmail_ui_user/features/thread/domain/state/delete_all_permanently_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/empty_spam_folder_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/empty_trash_folder_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/get_all_email_state.dart';
@@ -405,6 +406,9 @@ class ThreadController extends BaseController with EmailActionController, PopupM
           cancelSelectEmail();
           _refreshEmailChanges(currentEmailState: success.currentEmailState);
         } else if (success is MoveAllSelectionAllEmailsHasSomeEmailFailure) {
+          cancelSelectEmail();
+          _refreshEmailChanges(currentEmailState: success.currentEmailState);
+        } else if (success is DeleteAllPermanentlyEmailsSuccess) {
           cancelSelectEmail();
           _refreshEmailChanges(currentEmailState: success.currentEmailState);
         }
@@ -1476,6 +1480,14 @@ class ThreadController extends BaseController with EmailActionController, PopupM
         break;
       case EmailActionType.moveAllToTrash:
         mailboxDashBoardController.moveAllToTrashSelectionAllEmails(
+          context,
+          _session!,
+          _accountId!,
+          selectedMailbox,
+        );
+        break;
+      case EmailActionType.deleteAllPermanently:
+        mailboxDashBoardController.deleteAllPermanentlyEmails(
           context,
           _session!,
           _accountId!,
