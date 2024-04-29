@@ -6,6 +6,7 @@ import 'package:core/presentation/utils/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:tmail_ui_user/features/mailbox/domain/state/mark_as_mailbox_read_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/delete_all_permanently_emails_state.dart';
+import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_starred_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_unread_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/move_all_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/main/localizations/app_localizations.dart';
@@ -57,6 +58,16 @@ class AppToastManager {
       _appToast.showToastSuccessMessage(
         overlayContext,
         AppLocalizations.of(context).toast_message_empty_trash_folder_success);
+    } else if (success is MarkAllAsStarredSelectionAllEmailsAllSuccess) {
+      _appToast.showToastSuccessMessage(
+        overlayContext,
+        AppLocalizations.of(context).toastMessageMarkAllAsStarredSelectionAllEmailsSuccess,
+        leadingSVGIcon: _imagePaths.icUnreadToast);
+    } else if (success is MarkAllAsStarredSelectionAllEmailsHasSomeEmailFailure) {
+      _appToast.showToastSuccessMessage(
+        overlayContext,
+        AppLocalizations.of(context).toastMessageMarkAllAsStarredSelectionAllEmailsHasSomeEmailFailure(success.countStarred),
+        leadingSVGIcon: _imagePaths.icUnreadToast);
     }
   }
 
@@ -103,6 +114,16 @@ class AppToastManager {
         AppLocalizations.of(context).toastMessageDeleteAllPermanentlyEmailsFailureWithReason(
           failure.exception.toString()
         ));
+    } else if (failure is MarkAllAsStarredSelectionAllEmailsFailure) {
+      _appToast.showToastErrorMessage(
+        overlayContext,
+        AppLocalizations.of(context).toastMessageMarkAllAsStarredSelectionAllEmailsFailureWithReason(
+          failure.exception.toString()
+        ));
+    } else if (failure is MarkAllAsStarredSelectionAllEmailsAllFailure) {
+      _appToast.showToastErrorMessage(
+        overlayContext,
+        AppLocalizations.of(context).toastMessageMarkAllAsStarredSelectionAllEmailsAllFailure);
     }
   }
 }

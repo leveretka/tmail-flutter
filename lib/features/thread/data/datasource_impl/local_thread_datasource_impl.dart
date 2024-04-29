@@ -144,4 +144,15 @@ class LocalThreadDataSourceImpl extends ThreadDataSource {
   ) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<EmailId>> markAllAsStarredForSelectionAllEmails(
+    Session session,
+    AccountId accountId,
+    MailboxId mailboxId,
+    int totalEmails,
+    StreamController<dartz.Either<Failure, Success>> onProgressController
+  ) {
+    throw UnimplementedError();
+  }
 }

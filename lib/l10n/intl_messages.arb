@@ -1,5 +1,5 @@
 {
-  "@@last_modified": "2024-04-29T18:26:15.565574",
+  "@@last_modified": "2024-04-29T19:54:23.924948",
   "initializing_data": "Initializing data...",
   "@initializing_data": {
     "type": "text",
@@ -3974,6 +3974,44 @@
   },
   "toastMessageDeleteAllPermanentlyEmailsFailureWithReason": "All mails could not be delete forever. Due \"{reason}\"",
   "@toastMessageDeleteAllPermanentlyEmailsFailureWithReason": {
+    "type": "text",
+    "placeholders_order": [
+      "reason"
+    ],
+    "placeholders": {
+      "reason": {}
+    }
+  },
+  "allStarred": "All starred",
+  "@allStarred": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "toastMessageMarkAllAsStarredSelectionAllEmailsSuccess": "You’ve marked all mails as starred",
+  "@toastMessageMarkAllAsStarredSelectionAllEmailsSuccess": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "toastMessageMarkAllAsStarredSelectionAllEmailsHasSomeEmailFailure": "You’ve marked {count} mails as starred",
+  "@toastMessageMarkAllAsStarredSelectionAllEmailsHasSomeEmailFailure": {
+    "type": "text",
+    "placeholders_order": [
+      "count"
+    ],
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "toastMessageMarkAllAsStarredSelectionAllEmailsAllFailure": "All mails could not be marked as starred",
+  "@toastMessageMarkAllAsStarredSelectionAllEmailsAllFailure": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "toastMessageMarkAllAsStarredSelectionAllEmailsFailureWithReason": "All mails could not be marked as starred. Due \"{reason}\"",
+  "@toastMessageMarkAllAsStarredSelectionAllEmailsFailureWithReason": {
     "type": "text",
     "placeholders_order": [
       "reason"
