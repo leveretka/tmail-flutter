@@ -4145,4 +4145,18 @@ class AppLocalizations {
       args: [reason]
     );
   }
+
+  String get allUnSpam {
+    return Intl.message(
+      'All UnSpam',
+      name: 'allUnSpam',
+    );
+  }
+
+  String get markAllAsSpam {
+    return Intl.message(
+      'Mark all as spam',
+      name: 'markAllAsSpam',
+    );
+  }
 }
