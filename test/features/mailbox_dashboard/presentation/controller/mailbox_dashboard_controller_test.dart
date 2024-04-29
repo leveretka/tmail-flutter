@@ -83,6 +83,7 @@ import 'package:tmail_ui_user/features/thread/domain/usecases/load_more_emails_i
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_as_unread_selection_all_emails_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_as_multiple_email_read_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_as_star_multiple_email_interactor.dart';
+import 'package:tmail_ui_user/features/thread/domain/usecases/move_all_selection_all_emails_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/move_multiple_email_to_mailbox_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/refresh_changes_emails_in_mailbox_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/search_email_interactor.dart';
@@ -155,6 +156,7 @@ const fallbackGenerators = {
   MockSpec<SearchMoreEmailInteractor>(),
   MockSpec<RemoveComposerCacheOnWebInteractor>(),
   MockSpec<MarkAllAsUnreadSelectionAllEmailsInteractor>(),
+  MockSpec<MoveAllSelectionAllEmailsInteractor>(),
 ])
 void main() {
   // mock mailbox dashboard controller direct dependencies
@@ -238,6 +240,7 @@ void main() {
   final removeComposerCacheOnWebInteractor = MockRemoveComposerCacheOnWebInteractor();
   final getAllIdentitiesInteractor = MockGetAllIdentitiesInteractor();
   final markAllAsUnreadSelectionAllEmailsInteractor = MockMarkAllAsUnreadSelectionAllEmailsInteractor();
+  final moveAllSelectionAllEmailsInteractor = MockMoveAllSelectionAllEmailsInteractor();
   late MailboxController mailboxController;
 
   // mock thread controller direct dependencies
@@ -292,6 +295,7 @@ void main() {
       Get.put<GetAllIdentitiesInteractor>(getAllIdentitiesInteractor);
       Get.put<RemoveComposerCacheOnWebInteractor>(removeComposerCacheOnWebInteractor);
       Get.put<MarkAllAsUnreadSelectionAllEmailsInteractor>(markAllAsUnreadSelectionAllEmailsInteractor);
+      Get.put<MoveAllSelectionAllEmailsInteractor>(moveAllSelectionAllEmailsInteractor);
 
       Get.testMode = true;
       PackageInfo.setMockInitialValues(
@@ -337,6 +341,7 @@ void main() {
         removeComposerCacheOnWebInteractor,
         getAllIdentitiesInteractor,
         markAllAsUnreadSelectionAllEmailsInteractor,
+        moveAllSelectionAllEmailsInteractor,
       );
       Get.put(mailboxDashboardController);
       mailboxDashboardController.onReady();

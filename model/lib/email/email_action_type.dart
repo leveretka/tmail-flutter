@@ -30,4 +30,5 @@ enum EmailActionType {
   printAll,
   markAllAsRead,
   markAllAsUnread,
+  moveAll,
 }
