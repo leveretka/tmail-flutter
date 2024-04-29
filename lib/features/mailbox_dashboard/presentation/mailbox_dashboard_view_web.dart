@@ -10,7 +10,6 @@ import 'package:tmail_ui_user/features/base/widget/popup_item_no_icon_widget.dar
 import 'package:tmail_ui_user/features/composer/presentation/composer_view_web.dart';
 import 'package:tmail_ui_user/features/email/presentation/email_view.dart';
 import 'package:tmail_ui_user/features/email/presentation/model/composer_arguments.dart';
-import 'package:tmail_ui_user/features/mailbox/domain/state/mark_as_mailbox_read_state.dart';
 import 'package:tmail_ui_user/features/mailbox/presentation/mailbox_view_web.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/dashboard_action.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/base_mailbox_dashboard_view.dart';
@@ -20,6 +19,8 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/sear
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/email_sort_order_type.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/quick_search_filter.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/download/download_task_item_widget.dart';
+import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/loading/mark_all_as_unread_selection_all_emails_loading_widget.dart';
+import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/loading/mark_mailbox_as_read_loading_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/recover_deleted_message_loading_banner_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/search_input_form_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/top_bar_thread_selection.dart';
@@ -150,7 +151,8 @@ class MailboxDashBoardView extends BaseMailboxDashBoardView {
                             responsiveUtils: controller.responsiveUtils,
                         )),
                         _buildListButtonQuickSearchFilter(context),
-                        _buildMarkAsMailboxReadLoading(context),
+                        Obx(() => MarkMailboxAsReadLoadingWidget(viewState: controller.viewStateMarkAsReadMailbox.value)),
+                        Obx(() => MarkAllAsUnreadSelectionAllEmailsLoadingWidget(viewState: controller.markAllAsUnreadSelectionAllEmailsViewState.value)),
                         Expanded(child: Obx(() {
                           switch(controller.dashboardRoute.value) {
                             case DashboardRoutes.thread:
@@ -477,27 +479,6 @@ class MailboxDashBoardView extends BaseMailboxDashBoardView {
         }
       })
     ]);
-  }
-
-  Widget _buildMarkAsMailboxReadLoading(BuildContext context) {
-    return Obx(() {
-      final viewState = controller.viewStateMarkAsReadMailbox.value;
-      return viewState.fold(
-          (failure) => const SizedBox.shrink(),
-          (success) {
-            if (success is MarkAsMailboxReadLoading) {
-              return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: horizontalLoadingWidget);
-            } else if (success is UpdatingMarkAsMailboxReadState) {
-              final percent = success.countRead / success.totalUnread;
-              return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: horizontalPercentLoadingWidget(percent));
-            }
-            return const SizedBox.shrink();
-          });
-    });
   }
 
   Widget _buildDownloadTaskStateWidget() {

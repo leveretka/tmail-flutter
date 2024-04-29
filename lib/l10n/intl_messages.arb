@@ -1,5 +1,5 @@
 {
-  "@@last_modified": "2024-04-26T11:14:14.060748",
+  "@@last_modified": "2024-04-29T11:56:08.573350",
   "initializing_data": "Initializing data...",
   "@initializing_data": {
     "type": "text",
@@ -3870,6 +3870,44 @@
     "placeholders": {
       "total": {},
       "folderName": {}
+    }
+  },
+  "markAllAsUnread": "Mark all as unread",
+  "@markAllAsUnread": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "toastMessageMarkAllAsUnreadSelectionAllEmailsSuccess": "You’ve marked all mails as unread",
+  "@toastMessageMarkAllAsUnreadSelectionAllEmailsSuccess": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "toastMessageMarkAllAsUnreadSelectionAllEmailsHasSomeEmailFailure": "You’ve marked {count} mails as unread",
+  "@toastMessageMarkAllAsUnreadSelectionAllEmailsHasSomeEmailFailure": {
+    "type": "text",
+    "placeholders_order": [
+      "count"
+    ],
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "toastMessageMarkAllAsUnreadSelectionAllEmailsAllFailure": "All mails could not be marked as unread",
+  "@toastMessageMarkAllAsUnreadSelectionAllEmailsAllFailure": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "toastMessageMarkAllAsUnreadSelectionAllEmailsFailureWithReason": "All mails could not be marked as unread. Due \"{reason}\"",
+  "@toastMessageMarkAllAsUnreadSelectionAllEmailsFailureWithReason": {
+    "type": "text",
+    "placeholders_order": [
+      "reason"
+    ],
+    "placeholders": {
+      "reason": {}
     }
   }
 }
