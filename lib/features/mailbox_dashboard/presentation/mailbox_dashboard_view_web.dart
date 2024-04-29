@@ -4,7 +4,6 @@ import 'package:flutter_portal/flutter_portal.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:model/extensions/username_extension.dart';
-import 'package:model/mailbox/presentation_mailbox.dart';
 import 'package:tmail_ui_user/features/base/widget/application_version_widget.dart';
 import 'package:tmail_ui_user/features/base/widget/popup_item_no_icon_widget.dart';
 import 'package:tmail_ui_user/features/composer/presentation/composer_view_web.dart';
@@ -18,6 +17,7 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/dash
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/email_receive_time_type.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/email_sort_order_type.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/quick_search_filter.dart';
+import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/app_bar/desktop_top_bar_thread_view.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/download/download_task_item_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/loading/delete_all_permanently_emails_loading_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/loading/mark_all_as_starred_selection_all_emails_loading_widget.dart';
@@ -26,14 +26,12 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/lo
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/loading/move_all_selection_all_emails_loading_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/recover_deleted_message_loading_banner_widget.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/search_input_form_widget.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/top_bar_thread_selection.dart';
+import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/widgets/app_bar/top_bar_thread_selection.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/extensions/vacation_response_extension.dart';
 import 'package:tmail_ui_user/features/manage_account/presentation/vacation/widgets/vacation_notification_message_widget.dart';
 import 'package:tmail_ui_user/features/quotas/presentation/widget/quotas_banner_widget.dart';
 import 'package:tmail_ui_user/features/search/email/presentation/search_email_view.dart';
 import 'package:tmail_ui_user/features/search/mailbox/presentation/search_mailbox_view.dart';
-import 'package:tmail_ui_user/features/thread/domain/model/filter_message_option.dart';
-import 'package:tmail_ui_user/features/thread/domain/state/get_all_email_state.dart';
 import 'package:tmail_ui_user/features/thread/presentation/styles/banner_delete_all_spam_emails_styles.dart';
 import 'package:tmail_ui_user/features/thread/presentation/styles/banner_empty_trash_styles.dart';
 import 'package:tmail_ui_user/features/thread/presentation/thread_view.dart';
@@ -261,29 +259,22 @@ class MailboxDashBoardView extends BaseMailboxDashBoardView {
           Obx(() {
             final listEmailSelected = controller.listEmailSelected;
             if (controller.isSelectionEnabled() && listEmailSelected.isNotEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.5, horizontal: 16),
-                child: TopBarThreadSelection(
-                  listEmail: listEmailSelected,
-                  mapMailbox: controller.mapMailboxById,
-                  isSelectAllEmailsEnabled: controller.isSelectAllEmailsEnabled.value,
-                  selectedMailbox: controller.selectedMailbox.value,
-                  onCancelSelection: () =>
-                    controller.dispatchAction(CancelSelectionAllEmailAction()),
-                  onEmailActionTypeAction: (listEmails, actionType) =>
-                    controller.dispatchAction(HandleEmailActionTypeAction(
-                      context,
-                      listEmails,
-                      actionType
-                    )),
-                  onMoreSelectedEmailAction: (position) => controller.dispatchAction(MoreSelectedEmailAction(context, position)),
-                ),
+              return TopBarThreadSelection(
+                listEmail: listEmailSelected,
+                mapMailbox: controller.mapMailboxById,
+                isSelectAllEmailsEnabled: controller.isSelectAllEmailsEnabled.value,
+                selectedMailbox: controller.selectedMailbox.value,
+                onCancelSelection: () => controller.dispatchAction(CancelSelectionAllEmailAction()),
+                onEmailActionTypeAction: (listEmails, actionType) =>
+                  controller.dispatchAction(HandleEmailActionTypeAction(
+                    context,
+                    listEmails,
+                    actionType
+                  )),
+                onMoreSelectedEmailAction: (position) => controller.dispatchAction(MoreSelectedEmailAction(context, position)),
               );
             } else {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                child: _buildListButtonTopBar(context),
-              );
+              return DesktopTopBarThreadView();
             }
           }),
           const Divider(),
@@ -366,126 +357,6 @@ class MailboxDashBoardView extends BaseMailboxDashBoardView {
         const SizedBox(width: 16)
       ]);
     });
-  }
-
-  Widget _buildListButtonTopBar(BuildContext context) {
-    return Row(children: [
-      Obx(() {
-        return controller.refreshingMailboxState.value.fold(
-          (failure) {
-            return TMailButtonWidget.fromIcon(
-              key: const Key('refresh_mailbox_button'),
-              icon: controller.imagePaths.icRefresh,
-              borderRadius: 10,
-              iconSize: 16,
-              onTapActionCallback: controller.refreshMailboxAction,
-            );
-          },
-          (success) {
-            if (success is RefreshAllEmailLoading) {
-              return const TMailContainerWidget(
-                borderRadius: 10,
-                padding: EdgeInsetsDirectional.symmetric(vertical: 8, horizontal: 8.5),
-                child: CupertinoLoadingWidget(size: 16));
-            } else {
-              return TMailButtonWidget.fromIcon(
-                key: const Key('refresh_mailbox_button'),
-                icon: controller.imagePaths.icRefresh,
-                borderRadius: 10,
-                iconSize: 16,
-                onTapActionCallback: controller.refreshMailboxAction,
-              );
-            }
-          }
-        );
-      }),
-      const SizedBox(width: 16),
-      Tooltip(
-        message: AppLocalizations.of(context).selectAllMessagesOfThisPage,
-        child: ElevatedButton.icon(
-          onPressed: controller.selectAllEmailAction,
-          icon: SvgPicture.asset(
-            controller.imagePaths.icSelectAll,
-            width: 16,
-            height: 16,
-            fit: BoxFit.fill,
-          ),
-          label: Text(
-            AppLocalizations.of(context).selectAllMessagesOfThisPage,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColor.colorButtonHeaderThread,
-            shadowColor: Colors.transparent,
-            padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 8),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            elevation: 0.0,
-            foregroundColor: AppColor.colorTextButtonHeaderThread,
-            maximumSize: const Size.fromWidth(250),
-            textStyle: const TextStyle(fontSize: 12),
-          ),
-        ),
-      ),
-      if (controller.isAbleMarkAllAsRead())
-        Padding(
-          padding: const EdgeInsetsDirectional.only(start: 16),
-          child: TMailButtonWidget(
-            key: const Key('mark_as_read_emails_button'),
-            text: AppLocalizations.of(context).mark_all_as_read,
-            icon: controller.imagePaths.icSelectAll,
-            borderRadius: 10,
-            iconSize: 16,
-            padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 8),
-            onTapActionCallback: () => controller.markAsReadMailboxAction(context),
-          ),
-        ),
-      const SizedBox(width: 16),
-      Obx(() => TMailButtonWidget(
-        key: const Key('filter_emails_button'),
-        text: controller.filterMessageOption.value == FilterMessageOption.all
-          ? AppLocalizations.of(context).filter_messages
-          : controller.filterMessageOption.value.getTitle(context),
-        icon: controller.filterMessageOption.value.getIconSelected(controller.imagePaths),
-        borderRadius: 10,
-        iconSize: 16,
-        padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 8),
-        backgroundColor: controller.filterMessageOption.value.getBackgroundColor(),
-        textStyle: controller.filterMessageOption.value.getTextStyle(),
-        trailingIcon: controller.imagePaths.icArrowDown,
-        onTapActionAtPositionCallback: (position) {
-          return controller.openPopupMenuAction(
-            context,
-            position,
-            popupMenuFilterEmailActionTile(
-              context,
-              controller.filterMessageOption.value,
-              (option) => controller.dispatchAction(FilterMessageAction(context, option)),
-              isSearchEmailRunning: controller.searchController.isSearchEmailRunning
-            )
-          );
-        },
-      )),
-      Obx(() {
-        final mailboxSelected = controller.selectedMailbox.value;
-        if (mailboxSelected != null && mailboxSelected.role == PresentationMailbox.roleTrash) {
-          return Padding(
-            padding: const EdgeInsetsDirectional.only(start: 16),
-            child: TMailButtonWidget.fromIcon(
-              key: const Key('recover_deleted_messages_button'),
-              icon: controller.imagePaths.icRecoverDeletedMessages,
-              borderRadius: 10,
-              iconSize: 16,
-              onTapActionCallback: () => controller.gotoEmailRecovery(),
-            ),
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      })
-    ]);
   }
 
   Widget _buildDownloadTaskStateWidget() {

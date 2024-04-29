@@ -1393,7 +1393,8 @@ class ThreadController extends BaseController with EmailActionController, PopupM
     final listSelectionEmailActions = [
       EmailActionType.markAllAsRead,
       EmailActionType.markAllAsUnread,
-      EmailActionType.moveAll,
+      if (currentMailbox == null || currentMailbox?.isDrafts == false)
+        EmailActionType.moveAll,
       if (currentMailbox?.isTrash == true || currentMailbox?.isSpam == true || currentMailbox?.isDrafts == true)
         EmailActionType.deleteAllPermanently
       else

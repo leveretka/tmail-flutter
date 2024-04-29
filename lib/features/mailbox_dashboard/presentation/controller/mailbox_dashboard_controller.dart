@@ -1699,10 +1699,6 @@ class MailboxDashBoardController extends ReloadableController {
     consumeState(appGridDashboardController.showDashboardAction());
   }
 
-  bool isAbleMarkAllAsRead(){
-    return !searchController.isSearchEmailRunning && selectedMailbox.value != null && selectedMailbox.value!.isDrafts;
-  }
-
   void refreshActionWhenBackToApp() {
     log('MailboxDashBoardController::refreshActionWhenBackToApp():');
     _refreshActionEventController.add(RefreshActionViewEvent());
