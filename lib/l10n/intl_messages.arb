@@ -1,5 +1,5 @@
 {
-  "@@last_modified": "2024-04-29T14:28:31.400882",
+  "@@last_modified": "2024-04-29T15:22:50.815697",
   "initializing_data": "Initializing data...",
   "@initializing_data": {
     "type": "text",
@@ -3956,6 +3956,18 @@
   },
   "moveAll": "Move all",
   "@moveAll": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "moveAllToTrash": "Move all to trash",
+  "@moveAllToTrash": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "deleteAllPermanently": "Delete all permanently",
+  "@deleteAllPermanently": {
     "type": "text",
     "placeholders_order": [],
     "placeholders": {}

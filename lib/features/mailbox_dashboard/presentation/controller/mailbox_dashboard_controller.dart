@@ -2598,10 +2598,11 @@ class MailboxDashBoardController extends ReloadableController {
         session,
         accountId,
         currentMailbox.id,
-        destinationMailbox.toMailbox(),
+        destinationMailbox.id,
         destinationMailbox.mailboxPath ?? (context.mounted ? destinationMailbox.getDisplayName(context) : ''),
         currentMailbox.countTotalEmails,
-        _moveAllSelectionAllEmailsStreamController
+        _moveAllSelectionAllEmailsStreamController,
+        isDestinationSpamMailbox: destinationMailbox.isSpam
       ));
     }
   }
@@ -2626,6 +2627,29 @@ class MailboxDashBoardController extends ReloadableController {
       context: currentContext!,
       overlayContext: currentOverlayContext!,
       failure: failure);
+  }
+
+  Future<void> moveAllToTrashSelectionAllEmails(
+    BuildContext context,
+    Session session,
+    AccountId accountId,
+    PresentationMailbox currentMailbox
+  ) async {
+    final trashMailboxId = getMailboxIdByRole(PresentationMailbox.roleTrash);
+
+    if (trashMailboxId == null) return;
+
+    final trashMailboxPath = mapMailboxById[trashMailboxId]?.getDisplayName(context) ?? '';
+
+    consumeState(_moveAllSelectionAllEmailsInteractor.execute(
+      session,
+      accountId,
+      currentMailbox.id,
+      trashMailboxId,
+      trashMailboxPath,
+      currentMailbox.countTotalEmails,
+      _moveAllSelectionAllEmailsStreamController
+    ));
   }
 
   @override
