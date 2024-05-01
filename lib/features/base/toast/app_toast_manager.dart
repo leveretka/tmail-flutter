@@ -8,6 +8,7 @@ import 'package:tmail_ui_user/features/mailbox/domain/state/mark_as_mailbox_read
 import 'package:tmail_ui_user/features/thread/domain/state/delete_all_permanently_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_starred_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_unread_selection_all_emails_state.dart';
+import 'package:tmail_ui_user/features/thread/domain/state/mark_all_search_as_read_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/move_all_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/main/localizations/app_localizations.dart';
 
@@ -68,6 +69,11 @@ class AppToastManager {
         overlayContext,
         AppLocalizations.of(context).toastMessageMarkAllAsStarredSelectionAllEmailsHasSomeEmailFailure(success.countStarred),
         leadingSVGIcon: _imagePaths.icUnreadToast);
+    } else if (success is MarkAllSearchAsReadSuccess) {
+      _appToast.showToastSuccessMessage(
+        overlayContext,
+        AppLocalizations.of(context).toastMessageMarkAllSearchAsReadSuccess,
+        leadingSVGIcon: _imagePaths.icReadToast);
     }
   }
 
@@ -124,6 +130,12 @@ class AppToastManager {
       _appToast.showToastErrorMessage(
         overlayContext,
         AppLocalizations.of(context).toastMessageMarkAllAsStarredSelectionAllEmailsAllFailure);
+    } else if (failure is MarkAllSearchAsReadFailure) {
+      _appToast.showToastErrorMessage(
+        overlayContext,
+        AppLocalizations.of(context).toastMessageMarkAllSearchAsReadFailureWithReason(
+          failure.exception.toString()
+        ));
     }
   }
 }

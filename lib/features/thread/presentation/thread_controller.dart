@@ -39,6 +39,7 @@ import 'package:tmail_ui_user/features/mailbox/presentation/extensions/presentat
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/state/remove_email_drafts_state.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/action/dashboard_action.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/controller/search_controller.dart' as search;
+import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/extensions/search_email_filter_extension.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/dashboard_routes.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/email_sort_order_type.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/search_email_filter.dart';
@@ -62,6 +63,7 @@ import 'package:tmail_ui_user/features/thread/domain/state/get_email_by_id_state
 import 'package:tmail_ui_user/features/thread/domain/state/load_more_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_starred_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_unread_selection_all_emails_state.dart';
+import 'package:tmail_ui_user/features/thread/domain/state/mark_all_search_as_read_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_as_multiple_email_read_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_as_star_multiple_email_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/move_all_selection_all_emails_state.dart';
@@ -281,10 +283,15 @@ class ThreadController extends BaseController with EmailActionController, PopupM
         filterMessagesAction(action.context, action.option);
         mailboxDashBoardController.clearDashBoardAction();
       } else if (action is HandleEmailActionTypeAction) {
-        if (_validateToShowConfirmBulkActionEmailsDialog()) {
-          _showConfirmDialogWhenMakeToActionForSelectionAllEmails(
+        if (_validateToShowConfirmBulkActionEmailsDialogInMailbox()) {
+          _showConfirmDialogWhenMakeToActionForSelectionAllEmailsInMailbox(
             context: action.context,
             selectedMailbox: currentMailbox!,
+            actionType: action.emailAction
+          );
+        } else if (_validateToShowConfirmBulkActionEmailsDialogInSearch()) {
+          _showConfirmDialogWhenMakeToActionForSelectionAllEmailsInSearch(
+            context: action.context,
             actionType: action.emailAction
           );
         } else {
@@ -418,6 +425,9 @@ class ThreadController extends BaseController with EmailActionController, PopupM
         } else if (success is MarkAllAsStarredSelectionAllEmailsHasSomeEmailFailure) {
           cancelSelectEmail();
           _refreshEmailChanges(currentEmailState: success.currentEmailState);
+        } else if (success is MarkAllSearchAsReadSuccess) {
+          cancelSelectEmail();
+          _refreshEmailChanges();
         }
       });
     });
@@ -1400,7 +1410,10 @@ class ThreadController extends BaseController with EmailActionController, PopupM
       EmailActionType.markAllAsUnread,
       if (currentMailbox == null || currentMailbox?.isDrafts == false)
         EmailActionType.moveAll,
-      if (currentMailbox?.isTrash == true || currentMailbox?.isSpam == true || currentMailbox?.isDrafts == true)
+      if (currentMailbox != null
+          && (currentMailbox?.isTrash == true
+              || currentMailbox?.isSpam == true
+              || currentMailbox?.isDrafts == true))
         EmailActionType.deleteAllPermanently
       else
         EmailActionType.moveAllToTrash
@@ -1423,10 +1436,15 @@ class ThreadController extends BaseController with EmailActionController, PopupM
           onCallbackAction: () {
             popBack();
 
-            if (!isSearchActive) {
-              _showConfirmDialogWhenMakeToActionForSelectionAllEmails(
+            if (_validateToShowConfirmBulkActionEmailsDialogInMailbox()) {
+              _showConfirmDialogWhenMakeToActionForSelectionAllEmailsInMailbox(
                 context: context,
                 selectedMailbox: currentMailbox!,
+                actionType: action
+              );
+            } else if (_validateToShowConfirmBulkActionEmailsDialogInSearch()) {
+              _showConfirmDialogWhenMakeToActionForSelectionAllEmailsInSearch(
+                context: context,
                 actionType: action
               );
             }
@@ -1436,11 +1454,11 @@ class ThreadController extends BaseController with EmailActionController, PopupM
     );
   }
 
-  bool _validateToShowConfirmBulkActionEmailsDialog() {
-    return mailboxDashBoardController.isSelectAllEmailsEnabled.isTrue;
+  bool _validateToShowConfirmBulkActionEmailsDialogInMailbox() {
+    return mailboxDashBoardController.isSelectAllEmailsEnabled.isTrue && currentMailbox != null;
   }
 
-  Future<void> _showConfirmDialogWhenMakeToActionForSelectionAllEmails({
+  Future<void> _showConfirmDialogWhenMakeToActionForSelectionAllEmailsInMailbox({
     required BuildContext context,
     required PresentationMailbox selectedMailbox,
     required EmailActionType actionType
@@ -1458,7 +1476,7 @@ class ThreadController extends BaseController with EmailActionController, PopupM
         colorFilter: AppColor.colorBackgroundQuotasWarning.asFilter()
       ),
       onConfirmAction: () {
-        _handleActionsForSelectionAllEmails(
+        _handleActionsForSelectionAllEmailsInMailbox(
           context: context,
           selectedMailbox: selectedMailbox,
           actionType: actionType
@@ -1467,13 +1485,13 @@ class ThreadController extends BaseController with EmailActionController, PopupM
     );
   }
 
-  void _handleActionsForSelectionAllEmails({
+  void _handleActionsForSelectionAllEmailsInMailbox({
     required BuildContext context,
     required PresentationMailbox selectedMailbox,
     required EmailActionType actionType
   }) {
     if (_session == null || _accountId == null) {
-      logError('ThreadController::_handleActionsForSelectionAllEmails: SESSION & ACCOUNT_ID is null');
+      logError('ThreadController::_handleActionsForSelectionAllEmailsInMailbox: SESSION & ACCOUNT_ID is null');
       return;
     }
 
@@ -1544,6 +1562,66 @@ class ThreadController extends BaseController with EmailActionController, PopupM
           _accountId!,
           selectedMailbox,
         );
+        break;
+      default:
+        break;
+    }
+  }
+
+  bool _validateToShowConfirmBulkActionEmailsDialogInSearch() {
+    return mailboxDashBoardController.isSelectAllEmailsEnabled.isTrue && isSearchActive;
+  }
+
+  Future<void> _showConfirmDialogWhenMakeToActionForSelectionAllEmailsInSearch({
+    required BuildContext context,
+    required EmailActionType actionType
+  }) async {
+    await showConfirmDialogAction(
+      context,
+      AppLocalizations.of(context).messageConfirmationDialogWhenMakeToActionForSelectionAllEmailsInSearch,
+      AppLocalizations.of(context).ok,
+      title: AppLocalizations.of(context).confirmBulkAction,
+      icon: SvgPicture.asset(
+        imagePaths.icQuotasWarning,
+        colorFilter: AppColor.colorBackgroundQuotasWarning.asFilter()
+      ),
+      onConfirmAction: () => _handleActionsForSelectionAllEmailsInSearch(
+        context: context,
+        actionType: actionType
+      )
+    );
+  }
+
+  void _handleActionsForSelectionAllEmailsInSearch({
+    required BuildContext context,
+    required EmailActionType actionType
+  }) {
+    if (_session == null || _accountId == null) {
+      logError('ThreadController::_handleActionsForSelectionAllEmailsInSearch: SESSION & ACCOUNT_ID is null');
+      return;
+    }
+
+    switch(actionType) {
+      case EmailActionType.markAllAsRead:
+        mailboxDashBoardController.markAllSearchAsRead(
+          _session!,
+          _accountId!,
+          _searchEmailFilter.toSearchEmailFilterRequest(moreFilterCondition: _getFilterCondition()),
+        );
+        break;
+      case EmailActionType.markAllAsUnread:
+        break;
+      case EmailActionType.moveAll:
+        break;
+      case EmailActionType.moveAllToTrash:
+        break;
+      case EmailActionType.deleteAllPermanently:
+        break;
+      case EmailActionType.markAllAsStarred:
+        break;
+      case EmailActionType.markAllAsSpam:
+        break;
+      case EmailActionType.allUnSpam:
         break;
       default:
         break;

@@ -76,6 +76,7 @@ import 'package:tmail_ui_user/features/mailbox/domain/usecases/mark_as_mailbox_r
 import 'package:tmail_ui_user/features/mailbox/presentation/action/mailbox_ui_action.dart';
 import 'package:tmail_ui_user/features/mailbox/presentation/extensions/presentation_mailbox_extension.dart';
 import 'package:tmail_ui_user/features/mailbox/presentation/model/mailbox_actions.dart';
+import 'package:tmail_ui_user/features/mailbox_dashboard/domain/model/search_email_filter_request.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/model/spam_report_state.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/state/get_app_dashboard_configuration_state.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/domain/state/get_composer_cache_state.dart';
@@ -95,7 +96,7 @@ import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/down
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/draggable_app_state.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/preview_email_arguments.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/refresh_action_view_event.dart';
-import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/email_receive_time_type.dart';
+import 'package:tmail_ui_user/features/mailbox_dashboard/domain/model/email_receive_time_type.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/email_sort_order_type.dart';
 import 'package:tmail_ui_user/features/mailbox_dashboard/presentation/model/search/quick_search_filter.dart';
 import 'package:tmail_ui_user/features/mailto/presentation/model/mailto_arguments.dart';
@@ -137,6 +138,7 @@ import 'package:tmail_ui_user/features/thread/domain/state/get_all_email_state.d
 import 'package:tmail_ui_user/features/thread/domain/state/get_email_by_id_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_starred_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_unread_selection_all_emails_state.dart';
+import 'package:tmail_ui_user/features/thread/domain/state/mark_all_search_as_read_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_as_multiple_email_read_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_as_star_multiple_email_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/move_all_selection_all_emails_state.dart';
@@ -147,6 +149,7 @@ import 'package:tmail_ui_user/features/thread/domain/usecases/empty_trash_folder
 import 'package:tmail_ui_user/features/thread/domain/usecases/get_email_by_id_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_as_starred_selection_all_emails_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_as_unread_selection_all_emails_interactor.dart';
+import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_search_as_read_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_as_multiple_email_read_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_as_star_multiple_email_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/move_all_selection_all_emails_interactor.dart';
@@ -200,6 +203,7 @@ class MailboxDashBoardController extends ReloadableController {
   final MoveAllSelectionAllEmailsInteractor _moveAllSelectionAllEmailsInteractor;
   final DeleteAllPermanentlyEmailsInteractor _deleteAllPermanentlyEmailsInteractor;
   final MarkAllAsStarredSelectionAllEmailsInteractor _markAllAsStarredSelectionAllEmailsInteractor;
+  final MarkAllSearchAsReadInteractor _markAllSearchAsReadInteractor;
 
   GetAllVacationInteractor? _getAllVacationInteractor;
   UpdateVacationInteractor? _updateVacationInteractor;
@@ -237,6 +241,7 @@ class MailboxDashBoardController extends ReloadableController {
   final moveAllSelectionAllEmailsViewState = Rx<Either<Failure, Success>>(Right(UIState.idle));
   final deleteAllPermanentlyEmailsViewState = Rx<Either<Failure, Success>>(Right(UIState.idle));
   final markAllAsStarredSelectionAllEmailsViewState = Rx<Either<Failure, Success>>(Right(UIState.idle));
+  final markAllSearchAsReadViewState = Rx<Either<Failure, Success>>(Right(UIState.idle));
 
   Session? sessionCurrent;
   Map<Role, MailboxId> mapDefaultMailboxIdByRole = {};
@@ -302,6 +307,7 @@ class MailboxDashBoardController extends ReloadableController {
     this._moveAllSelectionAllEmailsInteractor,
     this._deleteAllPermanentlyEmailsInteractor,
     this._markAllAsStarredSelectionAllEmailsInteractor,
+    this._markAllSearchAsReadInteractor,
   );
 
   @override
@@ -417,6 +423,10 @@ class MailboxDashBoardController extends ReloadableController {
     } else if (success is MarkAllAsStarredSelectionAllEmailsAllSuccess
         || success is MarkAllAsStarredSelectionAllEmailsHasSomeEmailFailure) {
       _handleMarkAllAsStarredSelectionAllEmailsSuccess(success);
+    } else if (success is MarkAllSearchAsReadLoading) {
+      markAllSearchAsReadViewState.value = Right(success);
+    } else if (success is MarkAllSearchAsReadSuccess) {
+      _handleMarkAllSearchAsReadSuccess(success);
     }
   }
 
@@ -451,6 +461,8 @@ class MailboxDashBoardController extends ReloadableController {
     } else if (failure is MarkAllAsStarredSelectionAllEmailsFailure
       || failure is MarkAllAsStarredSelectionAllEmailsAllFailure) {
       _handleMarkAllAsStarredSelectionAllEmailsFailure(failure);
+    } else if (failure is MarkAllSearchAsReadFailure) {
+      _handleMarkAllSearchAsReadFailure(failure);
     }
   }
 
@@ -2804,6 +2816,40 @@ class MailboxDashBoardController extends ReloadableController {
       currentMailbox.countTotalEmails,
       _moveAllSelectionAllEmailsStreamController
     ));
+  }
+
+  void markAllSearchAsRead(
+    Session session,
+    AccountId accountId,
+    SearchEmailFilterRequest filterRequest
+  ) {
+    consumeState(_markAllSearchAsReadInteractor.execute(
+      session,
+      accountId,
+      filterRequest
+    ));
+  }
+
+  void _handleMarkAllSearchAsReadSuccess(Success success) {
+    markAllSearchAsReadViewState.value = Right(UIState.idle);
+
+    if (currentContext == null || currentOverlayContext == null) return;
+
+    appToastManager.showSuccessMessage(
+      context: currentContext!,
+      overlayContext: currentOverlayContext!,
+      success: success);
+  }
+
+  void _handleMarkAllSearchAsReadFailure(Failure failure) {
+    markAllSearchAsReadViewState.value = Right(UIState.idle);
+
+    if (currentContext == null || currentOverlayContext == null) return;
+
+    appToastManager.showFailureMessage(
+      context: currentContext!,
+      overlayContext: currentOverlayContext!,
+      failure: failure);
   }
 
   @override
