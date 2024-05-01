@@ -1631,6 +1631,12 @@ class ThreadController extends BaseController with EmailActionController, PopupM
         );
         break;
       case EmailActionType.moveAllToTrash:
+        mailboxDashBoardController.moveAllEmailSearchedToTrash(
+          context,
+          _session!,
+          _accountId!,
+          _searchEmailFilter.toSearchEmailFilterRequest(moreFilterCondition: _getFilterCondition()),
+        );
         break;
       case EmailActionType.deleteAllPermanently:
         break;

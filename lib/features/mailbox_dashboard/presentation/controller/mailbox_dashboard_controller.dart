@@ -3004,6 +3004,27 @@ class MailboxDashBoardController extends ReloadableController {
       failure: failure);
   }
 
+  Future<void> moveAllEmailSearchedToTrash(
+    BuildContext context,
+    Session session,
+    AccountId accountId,
+    SearchEmailFilterRequest filterRequest
+  ) async {
+    final trashMailboxId = getMailboxIdByRole(PresentationMailbox.roleTrash);
+
+    if (trashMailboxId == null) return;
+
+    final trashMailboxPath = mapMailboxById[trashMailboxId]?.getDisplayName(context) ?? '';
+
+    consumeState(_moveAllEmailSearchedToFolderInteractor.execute(
+      session,
+      accountId,
+      filterRequest,
+      trashMailboxId,
+      trashMailboxPath
+    ));
+  }
+
   @override
   void onClose() {
     _emailReceiveManager.closeEmailReceiveManagerStream();
