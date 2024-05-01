@@ -426,10 +426,11 @@ class ThreadIsolateWorker {
     }
   }
 
-  Future<List<EmailId>> markAllSearchAsRead(
+  Future<List<EmailId>> markAllSearchAsReadOrUnread(
     Session session,
     AccountId accountId,
-    SearchEmailFilterRequest filterRequest
+    SearchEmailFilterRequest filterRequest,
+    ReadActions readActions
   ) async {
     List<EmailId> emailIdListCompleted = List.empty(growable: true);
     try {
@@ -466,14 +467,14 @@ class ThreadIsolateWorker {
             session,
             accountId,
             listEmails,
-            ReadActions.markAsRead
+            readActions
           );
 
           emailIdListCompleted.addAll(listResult);
         }
       }
     } catch (e) {
-      logError('ThreadIsolateWorker::markAllSearchAsRead(): ERROR: $e');
+      logError('ThreadIsolateWorker::markAllSearchAsReadOrUnread(): ERROR: $e');
     }
     return emailIdListCompleted;
   }

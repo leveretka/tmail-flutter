@@ -84,6 +84,7 @@ import 'package:tmail_ui_user/features/thread/domain/usecases/load_more_emails_i
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_as_starred_selection_all_emails_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_as_unread_selection_all_emails_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_search_as_read_interactor.dart';
+import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_search_as_unread_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_as_multiple_email_read_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_as_star_multiple_email_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/move_all_selection_all_emails_interactor.dart';
@@ -163,6 +164,7 @@ const fallbackGenerators = {
   MockSpec<DeleteAllPermanentlyEmailsInteractor>(),
   MockSpec<MarkAllAsStarredSelectionAllEmailsInteractor>(),
   MockSpec<MarkAllSearchAsReadInteractor>(),
+  MockSpec<MarkAllSearchAsUnreadInteractor>(),
 ])
 void main() {
   // mock mailbox dashboard controller direct dependencies
@@ -250,6 +252,7 @@ void main() {
   final deleteAllPermanentlyEmailsInteractor = MockDeleteAllPermanentlyEmailsInteractor();
   final markAllAsStarredSelectionAllEmailsInteractor = MockMarkAllAsStarredSelectionAllEmailsInteractor();
   final markAllSearchAsReadInteractor = MockMarkAllSearchAsReadInteractor();
+  final markAllSearchAsUnreadInteractor = MockMarkAllSearchAsUnreadInteractor();
   late MailboxController mailboxController;
 
   // mock thread controller direct dependencies
@@ -308,6 +311,7 @@ void main() {
       Get.put<DeleteAllPermanentlyEmailsInteractor>(deleteAllPermanentlyEmailsInteractor);
       Get.put<MarkAllAsStarredSelectionAllEmailsInteractor>(markAllAsStarredSelectionAllEmailsInteractor);
       Get.put<MarkAllSearchAsReadInteractor>(markAllSearchAsReadInteractor);
+      Get.put<MarkAllSearchAsUnreadInteractor>(markAllSearchAsUnreadInteractor);
 
       Get.testMode = true;
       PackageInfo.setMockInitialValues(
@@ -357,6 +361,7 @@ void main() {
         deleteAllPermanentlyEmailsInteractor,
         markAllAsStarredSelectionAllEmailsInteractor,
         markAllSearchAsReadInteractor,
+        markAllSearchAsUnreadInteractor,
       );
       Get.put(mailboxDashboardController);
       mailboxDashboardController.onReady();

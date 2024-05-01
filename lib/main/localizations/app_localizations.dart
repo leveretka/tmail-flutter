@@ -4194,4 +4194,18 @@ class AppLocalizations {
       args: [reason]
     );
   }
+
+  String get toastMessageMarkAllSearchAsUnreadSuccess {
+    return Intl.message(
+      'You’ve marked all messages in search as unread',
+      name: 'toastMessageMarkAllSearchAsUnreadSuccess');
+  }
+
+  String toastMessageMarkAllSearchAsUnreadFailureWithReason(String reason) {
+    return Intl.message(
+      'All message in search could not be marked as unread. Due "$reason"',
+      name: 'toastMessageMarkAllSearchAsUnreadFailureWithReason',
+      args: [reason]
+    );
+  }
 }

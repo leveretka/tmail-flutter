@@ -1,5 +1,5 @@
 {
-  "@@last_modified": "2024-05-01T23:42:37.753685",
+  "@@last_modified": "2024-05-02T00:17:08.856180",
   "initializing_data": "Initializing data...",
   "@initializing_data": {
     "type": "text",
@@ -4058,6 +4058,22 @@
   },
   "toastMessageMarkAllSearchAsReadFailureWithReason": "All message in search could not be marked as read. Due \"{reason}\"",
   "@toastMessageMarkAllSearchAsReadFailureWithReason": {
+    "type": "text",
+    "placeholders_order": [
+      "reason"
+    ],
+    "placeholders": {
+      "reason": {}
+    }
+  },
+  "toastMessageMarkAllSearchAsUnreadSuccess": "You’ve marked all messages in search as unread",
+  "@toastMessageMarkAllSearchAsUnreadSuccess": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "toastMessageMarkAllSearchAsUnreadFailureWithReason": "All message in search could not be marked as unread. Due \"{reason}\"",
+  "@toastMessageMarkAllSearchAsUnreadFailureWithReason": {
     "type": "text",
     "placeholders_order": [
       "reason"
