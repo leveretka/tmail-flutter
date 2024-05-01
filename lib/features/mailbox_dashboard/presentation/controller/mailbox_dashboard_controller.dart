@@ -3025,6 +3025,28 @@ class MailboxDashBoardController extends ReloadableController {
     ));
   }
 
+  Future<void> markAllEmailSearchedAsSpam(
+    BuildContext context,
+    Session session,
+    AccountId accountId,
+    SearchEmailFilterRequest filterRequest
+  ) async {
+    final spamMailboxId = getMailboxIdByRole(PresentationMailbox.roleSpam);
+
+    if (spamMailboxId == null) return;
+
+    final spamMailboxPath = mapMailboxById[spamMailboxId]?.getDisplayName(context) ?? '';
+
+    consumeState(_moveAllEmailSearchedToFolderInteractor.execute(
+      session,
+      accountId,
+      filterRequest,
+      spamMailboxId,
+      spamMailboxPath,
+      isDestinationSpamMailbox: true
+    ));
+  }
+
   @override
   void onClose() {
     _emailReceiveManager.closeEmailReceiveManagerStream();
