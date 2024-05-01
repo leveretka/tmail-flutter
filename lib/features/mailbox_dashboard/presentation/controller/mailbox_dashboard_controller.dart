@@ -143,6 +143,7 @@ import 'package:tmail_ui_user/features/thread/domain/state/mark_all_search_as_st
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_search_as_unread_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_as_multiple_email_read_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_as_star_multiple_email_state.dart';
+import 'package:tmail_ui_user/features/thread/domain/state/move_all_email_searched_to_folder_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/move_all_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/move_multiple_email_to_mailbox_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/delete_all_permanently_emails_interactor.dart';
@@ -156,6 +157,7 @@ import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_search_as
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_all_search_as_unread_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_as_multiple_email_read_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/mark_as_star_multiple_email_interactor.dart';
+import 'package:tmail_ui_user/features/thread/domain/usecases/move_all_email_searched_to_folder_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/move_all_selection_all_emails_interactor.dart';
 import 'package:tmail_ui_user/features/thread/domain/usecases/move_multiple_email_to_mailbox_interactor.dart';
 import 'package:tmail_ui_user/features/thread/presentation/model/delete_action_type.dart';
@@ -210,6 +212,7 @@ class MailboxDashBoardController extends ReloadableController {
   final MarkAllSearchAsReadInteractor _markAllSearchAsReadInteractor;
   final MarkAllSearchAsUnreadInteractor _markAllSearchAsUnreadInteractor;
   final MarkAllSearchAsStarredInteractor _markAllSearchAsStarredInteractor;
+  final MoveAllEmailSearchedToFolderInteractor _moveAllEmailSearchedToFolderInteractor;
 
   GetAllVacationInteractor? _getAllVacationInteractor;
   UpdateVacationInteractor? _updateVacationInteractor;
@@ -250,6 +253,7 @@ class MailboxDashBoardController extends ReloadableController {
   final markAllSearchAsReadViewState = Rx<Either<Failure, Success>>(Right(UIState.idle));
   final markAllSearchAsUnreadViewState = Rx<Either<Failure, Success>>(Right(UIState.idle));
   final markAllSearchAsStarredViewState = Rx<Either<Failure, Success>>(Right(UIState.idle));
+  final moveAllEmailSearchedToFolderViewState = Rx<Either<Failure, Success>>(Right(UIState.idle));
 
   Session? sessionCurrent;
   Map<Role, MailboxId> mapDefaultMailboxIdByRole = {};
@@ -318,6 +322,7 @@ class MailboxDashBoardController extends ReloadableController {
     this._markAllSearchAsReadInteractor,
     this._markAllSearchAsUnreadInteractor,
     this._markAllSearchAsStarredInteractor,
+    this._moveAllEmailSearchedToFolderInteractor,
   );
 
   @override
@@ -445,6 +450,10 @@ class MailboxDashBoardController extends ReloadableController {
       markAllSearchAsStarredViewState.value = Right(success);
     } else if (success is MarkAllSearchAsStarredSuccess) {
       _handleMarkAllSearchAsStarredSuccess(success);
+    } else if (success is MoveAllEmailSearchedToFolderLoading) {
+      moveAllEmailSearchedToFolderViewState.value = Right(success);
+    } else if (success is MoveAllEmailSearchedToFolderSuccess) {
+      _handleMoveAllEmailSearchedToFolderSuccess(success);
     }
   }
 
@@ -485,6 +494,8 @@ class MailboxDashBoardController extends ReloadableController {
       _handleMarkAllSearchAsUnreadFailure(failure);
     } else if (failure is MarkAllSearchAsStarredFailure) {
       _handleMarkAllSearchAsStarredFailure(failure);
+    } else if (failure is MoveAllEmailSearchedToFolderFailure) {
+      _handleMoveAllEmailSearchedToFolderFailure(failure);
     }
   }
 
@@ -2933,6 +2944,57 @@ class MailboxDashBoardController extends ReloadableController {
 
   void _handleMarkAllSearchAsStarredFailure(Failure failure) {
     markAllSearchAsStarredViewState.value = Right(UIState.idle);
+
+    if (currentContext == null || currentOverlayContext == null) return;
+
+    appToastManager.showFailureMessage(
+      context: currentContext!,
+      overlayContext: currentOverlayContext!,
+      failure: failure);
+  }
+
+  Future<void> moveAllEmailSearchedToFolder(
+    BuildContext context,
+    Session session,
+    AccountId accountId,
+    SearchEmailFilterRequest filterRequest
+  ) async {
+    final arguments = DestinationPickerArguments(
+      accountId,
+      MailboxActions.moveEmail,
+      session);
+
+    final destinationMailbox = PlatformInfo.isWeb
+      ? await DialogRouter.pushGeneralDialog(
+          routeName: AppRoutes.destinationPicker,
+          arguments: arguments)
+      : await push(AppRoutes.destinationPicker, arguments: arguments);
+
+    if (destinationMailbox is PresentationMailbox) {
+      consumeState(_moveAllEmailSearchedToFolderInteractor.execute(
+        session,
+        accountId,
+        filterRequest,
+        destinationMailbox.id,
+        destinationMailbox.mailboxPath ?? (context.mounted ? destinationMailbox.getDisplayName(context) : ''),
+        isDestinationSpamMailbox: destinationMailbox.isSpam
+      ));
+    }
+  }
+
+  void _handleMoveAllEmailSearchedToFolderSuccess(Success success) {
+    moveAllEmailSearchedToFolderViewState.value = Right(UIState.idle);
+
+    if (currentContext == null || currentOverlayContext == null) return;
+
+    appToastManager.showSuccessMessage(
+      context: currentContext!,
+      overlayContext: currentOverlayContext!,
+      success: success);
+  }
+
+  void _handleMoveAllEmailSearchedToFolderFailure(Failure failure) {
+    moveAllEmailSearchedToFolderViewState.value = Right(UIState.idle);
 
     if (currentContext == null || currentOverlayContext == null) return;
 
