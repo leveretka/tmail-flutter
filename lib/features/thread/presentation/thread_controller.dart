@@ -64,6 +64,7 @@ import 'package:tmail_ui_user/features/thread/domain/state/load_more_emails_stat
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_starred_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_as_unread_selection_all_emails_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_search_as_read_state.dart';
+import 'package:tmail_ui_user/features/thread/domain/state/mark_all_search_as_starred_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_all_search_as_unread_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_as_multiple_email_read_state.dart';
 import 'package:tmail_ui_user/features/thread/domain/state/mark_as_star_multiple_email_state.dart';
@@ -427,7 +428,8 @@ class ThreadController extends BaseController with EmailActionController, PopupM
           cancelSelectEmail();
           _refreshEmailChanges(currentEmailState: success.currentEmailState);
         } else if (success is MarkAllSearchAsReadSuccess
-            || success is MarkAllSearchAsUnreadSuccess) {
+            || success is MarkAllSearchAsUnreadSuccess
+            || success is MarkAllSearchAsStarredSuccess) {
           cancelSelectEmail();
           _refreshEmailChanges();
         }
@@ -1625,6 +1627,11 @@ class ThreadController extends BaseController with EmailActionController, PopupM
       case EmailActionType.deleteAllPermanently:
         break;
       case EmailActionType.markAllAsStarred:
+        mailboxDashBoardController.markAllSearchAsStarred(
+          _session!,
+          _accountId!,
+          _searchEmailFilter.toSearchEmailFilterRequest(moreFilterCondition: _getFilterCondition()),
+        );
         break;
       case EmailActionType.markAllAsSpam:
         break;
