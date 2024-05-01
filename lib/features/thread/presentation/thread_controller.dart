@@ -1638,8 +1638,6 @@ class ThreadController extends BaseController with EmailActionController, PopupM
           _searchEmailFilter.toSearchEmailFilterRequest(moreFilterCondition: _getFilterCondition()),
         );
         break;
-      case EmailActionType.deleteAllPermanently:
-        break;
       case EmailActionType.markAllAsStarred:
         mailboxDashBoardController.markAllSearchAsStarred(
           _session!,
@@ -1654,8 +1652,6 @@ class ThreadController extends BaseController with EmailActionController, PopupM
           _accountId!,
           _searchEmailFilter.toSearchEmailFilterRequest(moreFilterCondition: _getFilterCondition()),
         );
-        break;
-      case EmailActionType.allUnSpam:
         break;
       default:
         break;
