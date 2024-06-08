@@ -11,7 +11,7 @@ import 'package:core/presentation/utils/html_transformer/dom/remove_lazy_loading
 import 'package:core/presentation/utils/html_transformer/dom/remove_max_width_in_image_style_transformers.dart';
 import 'package:core/presentation/utils/html_transformer/dom/remove_style_tag_outside_transformers.dart';
 import 'package:core/presentation/utils/html_transformer/dom/remove_tooltip_link_transformers.dart';
-import 'package:core/presentation/utils/html_transformer/dom/sanitize_tag_a_in_html_transformers.dart';
+import 'package:core/presentation/utils/html_transformer/dom/sanitize_hyper_link_tag_in_html_transformers.dart';
 import 'package:core/presentation/utils/html_transformer/dom/script_transformers.dart';
 import 'package:core/presentation/utils/html_transformer/dom/signature_transformers.dart';
 import 'package:core/presentation/utils/html_transformer/text/sanitize_autolink_html_transformers.dart';
@@ -52,7 +52,7 @@ class TransformConfiguration {
       const RemoveScriptTransformer(),
       const BlockQuotedTransformer(),
       const BlockCodeTransformer(),
-      SanitizeTagAInHtmlTransformer(useTooltip: true),
+      SanitizeHyperLinkTagInHtmlTransformer(useTooltip: true),
       const ImageTransformer(),
       const AddLazyLoadingForBackgroundImageTransformer(),
       const RemoveCollapsedSignatureButtonTransformer(),
@@ -102,7 +102,7 @@ class TransformConfiguration {
     const RemoveScriptTransformer(),
     const BlockQuotedTransformer(),
     const BlockCodeTransformer(),
-    SanitizeTagAInHtmlTransformer(),
+    SanitizeHyperLinkTagInHtmlTransformer(),
     const ImageTransformer(),
     const AddLazyLoadingForBackgroundImageTransformer(),
     const RemoveCollapsedSignatureButtonTransformer(),
