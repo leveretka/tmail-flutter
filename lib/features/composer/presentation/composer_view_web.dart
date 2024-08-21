@@ -39,6 +39,7 @@ class ComposerView extends GetWidget<ComposerController> {
         childBuilder: (context, constraints) {
           return GestureDetector(
             onTap: () => controller.clearFocus(context),
+            excludeFromSemantics: true,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -293,6 +294,7 @@ class ComposerView extends GetWidget<ComposerController> {
         childBuilder: (context, constraints) {
           return GestureDetector(
             onTap: () => controller.clearFocus(context),
+            excludeFromSemantics: true,
             child: Column(children: [
               Obx(() => DesktopAppBarComposerWidget(
                 emailSubject: controller.subjectEmail.value ?? '',
@@ -567,6 +569,7 @@ class ComposerView extends GetWidget<ComposerController> {
         childBuilder: (context, constraints) {
           return GestureDetector(
             onTap: () => controller.clearFocus(context),
+            excludeFromSemantics: true,
             child: Column(children: [
               Obx(() => DesktopAppBarComposerWidget(
                 emailSubject: controller.subjectEmail.value ?? '',
