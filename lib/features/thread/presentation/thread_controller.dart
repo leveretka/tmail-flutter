@@ -619,6 +619,11 @@ class ThreadController extends BaseController with EmailActionController {
     }
   }
 
+  bool _validatePresentationEmail(PresentationEmail email) {
+    return _belongToCurrentMailboxId(email)
+      && _notDuplicatedInCurrentList(email);
+  }
+
   bool _belongToCurrentMailboxId(PresentationEmail email) {
     return (email.mailboxIds != null && email.mailboxIds!.keys.contains(selectedMailboxId));
   }
@@ -630,19 +635,8 @@ class ThreadController extends BaseController with EmailActionController {
   }
 
   void _loadMoreEmailsSuccess(LoadMoreEmailsSuccess success) {
-    log('ThreadController::_loadMoreEmailsSuccess: COUNT = ${success.emailList.length}');
-    if (success.emailList.isNotEmpty) {
-      final appendableList = success.emailList
-        .where(_belongToCurrentMailboxId)
-        .where(_notDuplicatedInCurrentList)
-        .toList()
-        .syncPresentationEmail(
-          mapMailboxById: mailboxDashBoardController.mapMailboxById,
-          selectedMailbox: selectedMailbox,
-          searchQuery: searchController.searchQuery,
-          isSearchEmailRunning: searchController.isSearchEmailRunning
-        );
-
+    final appendableList = validateListEmailsLoadMore(success.emailList);
+    if (appendableList.isNotEmpty) {
       mailboxDashBoardController.emailsInCurrentMailbox.addAll(appendableList);
       canLoadMore = true;
     } else {
@@ -653,6 +647,21 @@ class ThreadController extends BaseController with EmailActionController {
     if (PlatformInfo.isWeb) {
       _initialMeasureBrowserHeight();
     }
+  }
+
+  List<PresentationEmail> validateListEmailsLoadMore(List<PresentationEmail> emailList) {
+    log('ThreadController::validateListEmailsLoadMore: BEFORE_EMAIL_LIST = ${emailList.length}');
+    final appendableList = emailList
+      .where(_validatePresentationEmail)
+      .toList()
+      .syncPresentationEmail(
+        mapMailboxById: mailboxDashBoardController.mapMailboxById,
+        selectedMailbox: selectedMailbox,
+        searchQuery: searchController.searchQuery,
+        isSearchEmailRunning: searchController.isSearchEmailRunning
+      );
+    log('ThreadController::validateListEmailsLoadMore: AFTER_EMAIL_LIST = ${appendableList.length}');
+    return appendableList;
   }
 
   SelectMode getSelectMode(PresentationEmail presentationEmail, PresentationEmail? selectedEmail) {
