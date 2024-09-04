@@ -625,7 +625,7 @@ class ThreadController extends BaseController with EmailActionController {
   }
 
   bool _belongToCurrentMailboxId(PresentationEmail email) {
-    return (email.mailboxIds != null && email.mailboxIds!.keys.contains(selectedMailboxId));
+    return email.mailboxIds != null && email.mailboxIds!.keys.contains(selectedMailboxId);
   }
 
   bool _notDuplicatedInCurrentList(PresentationEmail email) {
@@ -795,9 +795,6 @@ class ThreadController extends BaseController with EmailActionController {
   }
 
   bool get isSearchActive => searchController.isSearchEmailRunning;
-
-  bool get isAllSearchInActive => !searchController.isSearchActive() &&
-    searchController.isAdvancedSearchViewOpen.isFalse;
 
   void clearTextSearch() {
     searchController.clearTextSearch();
