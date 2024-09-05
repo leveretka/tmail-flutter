@@ -191,6 +191,7 @@ class ComposerController extends BaseController with DragDropFileMixin implement
   ButtonState _closeComposerButtonState = ButtonState.enabled;
   ButtonState _saveToDraftButtonState = ButtonState.enabled;
   ButtonState _sendButtonState = ButtonState.enabled;
+  bool _keepEditedIdentityContentOnOpen = true;
 
   late Worker uploadInlineImageWorker;
   late Worker dashboardViewStateWorker;
@@ -258,6 +259,7 @@ class ComposerController extends BaseController with DragDropFileMixin implement
     } else {
       richTextMobileTabletController = null;
     }
+    _keepEditedIdentityContentOnOpen = true;
     super.onClose();
   }
 
@@ -716,14 +718,19 @@ class ComposerController extends BaseController with DragDropFileMixin implement
     }
   }
 
+  Identity? _selectedIdentityFromId(IdentityId? identityId) {
+    if (identityId == null) return null;
+
+    return listFromIdentities.firstWhereOrNull(
+      (identity) => identity.id == identityId);
+  }
+
   void _initIdentities(ComposerArguments composerArguments) {
     listFromIdentities.value = composerArguments.identities ?? [];
     if (listFromIdentities.isEmpty) {
       _getAllIdentities();
-    } else if (composerArguments.selectedIdentity != null
-      && listFromIdentities.contains(composerArguments.selectedIdentity!)
-    ) {
-      _selectIdentity(composerArguments.selectedIdentity!);
+    } else if (_selectedIdentityFromId(composerArguments.selectedIdentityId) != null) {
+      _selectIdentity(_selectedIdentityFromId(composerArguments.selectedIdentityId));
     } else if (composerArguments.identities?.isNotEmpty == true) {
       _selectIdentity(composerArguments.identities!.first);
     }
@@ -744,11 +751,8 @@ class ComposerController extends BaseController with DragDropFileMixin implement
       listFromIdentities.value = listIdentitiesMayDeleted;
 
       if (identitySelected.value == null) {
-        final selectedIdentityFromArguments = composerArguments.value?.selectedIdentity;
-        if (selectedIdentityFromArguments != null
-            && listFromIdentities.contains(selectedIdentityFromArguments)
-        ) {
-          await _selectIdentity(selectedIdentityFromArguments);
+        if (_selectedIdentityFromId(composerArguments.value?.selectedIdentityId) != null) {
+          await _selectIdentity(_selectedIdentityFromId(composerArguments.value?.selectedIdentityId));
         } else {
           await _selectIdentity(listIdentitiesMayDeleted.firstOrNull);
         }
@@ -1389,7 +1393,8 @@ class ComposerController extends BaseController with DragDropFileMixin implement
       accountId,
       emailId,
       mailboxDashBoardController.baseDownloadUrl,
-      TransformConfiguration.forDraftsEmail()
+      TransformConfiguration.forDraftsEmail(),
+      withIdentityHeader: true,
     ));
   }
 
@@ -1412,7 +1417,16 @@ class ComposerController extends BaseController with DragDropFileMixin implement
 
     if (composerArguments.value?.emailActionType == EmailActionType.editDraft) {
       _setUpRequestReadReceiptForDraftEmail(success.emailCurrent);
+      _restoreIdentityFromHeader(success.emailCurrent);
     }
+  }
+
+  void _restoreIdentityFromHeader(Email? email) {
+    final identityIdFromHeader = email?.identityIdFromHeader;
+    if (identityIdFromHeader == null) return;
+    final selectedIdentityFromHeader = _selectedIdentityFromId(identityIdFromHeader);
+    if (selectedIdentityFromHeader == null) return;
+    identitySelected.value = selectedIdentityFromHeader;
   }
 
   void _transformHtmlEmailContent(String? emailContent) {
@@ -1662,11 +1676,18 @@ class ComposerController extends BaseController with DragDropFileMixin implement
     identitySelected.value = newIdentity;
     if (newIdentity == null) return;
 
-    if (composerArguments.value?.emailActionType == EmailActionType.reopenComposerBrowser) {
-      composerArguments.value = composerArguments.value?.copyWith(
-        emailActionType: EmailActionType.editDraft);
-    } else {
-      await _applyIdentityForAllFieldComposer(formerIdentity, newIdentity);
+    final emailActionType = composerArguments.value?.emailActionType;
+    switch (emailActionType) {
+      case EmailActionType.reopenComposerBrowser:
+      case EmailActionType.editDraft:
+        if (_keepEditedIdentityContentOnOpen) {
+          _keepEditedIdentityContentOnOpen = false;
+        } else {
+          await _applyIdentityForAllFieldComposer(formerIdentity, newIdentity);
+        }
+        break;
+      default:
+        await _applyIdentityForAllFieldComposer(formerIdentity, newIdentity);
     }
   }
 
@@ -1891,7 +1912,6 @@ class ComposerController extends BaseController with DragDropFileMixin implement
     if (identitySelected.value == null) {
       _getAllIdentities();
     } else {
-      await _selectIdentity(identitySelected.value);
       _autoFocusFieldWhenLauncher();
     }
   }

@@ -28,6 +28,7 @@ import 'package:jmap_dart_client/jmap/jmap_request.dart';
 import 'package:jmap_dart_client/jmap/mail/email/email.dart';
 import 'package:jmap_dart_client/jmap/mail/email/get/get_email_method.dart';
 import 'package:jmap_dart_client/jmap/mail/email/get/get_email_response.dart';
+import 'package:jmap_dart_client/jmap/mail/email/individual_header_identifier.dart';
 import 'package:jmap_dart_client/jmap/mail/email/keyword_identifier.dart';
 import 'package:jmap_dart_client/jmap/mail/email/set/set_email_method.dart';
 import 'package:jmap_dart_client/jmap/mail/email/set/set_email_response.dart';
@@ -81,7 +82,12 @@ class EmailAPI with HandleSetErrorMixin {
 
   EmailAPI(this._httpClient, this._downloadManager, this._dioClient, this._uuid);
 
-  Future<Email> getEmailContent(Session session, AccountId accountId, EmailId emailId) async {
+  Future<Email> getEmailContent(
+    Session session,
+    AccountId accountId,
+    EmailId emailId,
+    {bool withIdentityHeader = false}
+  ) async {
     final processingInvocation = ProcessingInvocation();
 
     final jmapRequestBuilder = JmapRequestBuilder(_httpClient, processingInvocation);
@@ -90,6 +96,10 @@ class EmailAPI with HandleSetErrorMixin {
       ..addIds({emailId.id})
       ..addProperties(ThreadConstants.propertiesGetEmailContent)
       ..addFetchHTMLBodyValues(true);
+    if (withIdentityHeader) {
+      getEmailMethod.addProperties(Properties({
+        IndividualHeaderIdentifier.identityHeader.value}));
+    }
 
     final getEmailInvocation = jmapRequestBuilder.invocation(getEmailMethod);
 

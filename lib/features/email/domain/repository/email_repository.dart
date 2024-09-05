@@ -28,7 +28,11 @@ import 'package:tmail_ui_user/features/email/domain/model/restore_deleted_messag
 import 'package:tmail_ui_user/features/mailbox/domain/model/create_new_mailbox_request.dart';
 
 abstract class EmailRepository {
-  Future<Email> getEmailContent(Session session, AccountId accountId, EmailId emailId);
+  Future<Email> getEmailContent(
+    Session session,
+    AccountId accountId,
+    EmailId emailId,
+    {bool withIdentityHeader = false});
 
   Future<void> sendEmail(
     Session session,

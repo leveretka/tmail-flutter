@@ -26,7 +26,11 @@ import 'package:tmail_ui_user/features/mailbox/domain/model/create_new_mailbox_r
 import 'package:tmail_ui_user/features/sending_queue/domain/model/sending_email.dart';
 
 abstract class EmailDataSource {
-  Future<Email> getEmailContent(Session session, AccountId accountId, EmailId emailId);
+  Future<Email> getEmailContent(
+    Session session,
+    AccountId accountId,
+    EmailId emailId,
+    {bool withIdentityHeader = false});
 
   Future<void> sendEmail(
     Session session,

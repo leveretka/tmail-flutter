@@ -49,8 +49,17 @@ class EmailRepositoryImpl extends EmailRepository {
   );
 
   @override
-  Future<Email> getEmailContent(Session session, AccountId accountId, EmailId emailId) {
-    return emailDataSource[DataSourceType.network]!.getEmailContent(session ,accountId, emailId);
+  Future<Email> getEmailContent(
+    Session session,
+    AccountId accountId,
+    EmailId emailId,
+    {bool withIdentityHeader = false}
+  ) {
+    return emailDataSource[DataSourceType.network]!.getEmailContent(
+      session,
+      accountId,
+      emailId,
+      withIdentityHeader: withIdentityHeader);
   }
 
   @override

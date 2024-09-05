@@ -23,6 +23,7 @@ class GetEmailContentInteractor {
     EmailId emailId,
     String baseDownloadUrl,
     TransformConfiguration transformConfiguration,
+    {bool withIdentityHeader = false}
   ) async* {
     try {
       yield Right<Failure, Success>(GetEmailContentLoading());
@@ -30,7 +31,13 @@ class GetEmailContentInteractor {
       if (PlatformInfo.isMobile) {
         yield* _getStoredOpenedEmail(session, accountId, emailId, baseDownloadUrl, transformConfiguration);
       } else {
-        yield* _getContentEmailFromServer(session, accountId, emailId, baseDownloadUrl, transformConfiguration);
+        yield* _getContentEmailFromServer(
+          session,
+          accountId,
+          emailId,
+          baseDownloadUrl,
+          transformConfiguration,
+          withIdentityHeader: withIdentityHeader);
       }
     } catch (e) {
       log('GetEmailContentInteractor::execute(): exception = $e');
@@ -44,9 +51,14 @@ class GetEmailContentInteractor {
     EmailId emailId,
     String baseDownloadUrl,
     TransformConfiguration transformConfiguration,
+    {bool withIdentityHeader = false}
   ) async* {
     try {
-      final email = await emailRepository.getEmailContent(session, accountId, emailId);
+      final email = await emailRepository.getEmailContent(
+        session,
+        accountId,
+        emailId,
+        withIdentityHeader: withIdentityHeader);
       final listAttachments = email.allAttachments.getListAttachmentsDisplayedOutside(email.htmlBodyAttachments);
       final listInlineImages = email.allAttachments.listAttachmentsDisplayedInContent;
 

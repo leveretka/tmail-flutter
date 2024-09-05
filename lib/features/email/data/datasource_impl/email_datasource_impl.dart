@@ -35,9 +35,18 @@ class EmailDataSourceImpl extends EmailDataSource {
   EmailDataSourceImpl(this.emailAPI, this._exceptionThrower);
 
   @override
-  Future<Email> getEmailContent(Session session, AccountId accountId, EmailId emailId) {
+  Future<Email> getEmailContent(
+    Session session,
+    AccountId accountId,
+    EmailId emailId,
+    {bool withIdentityHeader = false}
+  ) {
     return Future.sync(() async {
-      return await emailAPI.getEmailContent(session, accountId, emailId);
+      return await emailAPI.getEmailContent(
+        session,
+        accountId,
+        emailId,
+        withIdentityHeader: withIdentityHeader);
     }).catchError(_exceptionThrower.throwException);
   }
 

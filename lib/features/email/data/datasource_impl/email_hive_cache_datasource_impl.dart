@@ -109,7 +109,12 @@ class EmailHiveCacheDataSourceImpl extends EmailDataSource {
   }
 
   @override
-  Future<Email> getEmailContent(Session session, AccountId accountId, EmailId emailId) {
+  Future<Email> getEmailContent(
+    Session session,
+    AccountId accountId,
+    EmailId emailId,
+    {bool withIdentityHeader = false}
+  ) {
     throw UnimplementedError();
   }
 
