@@ -1,6 +1,6 @@
 name: rule_filter
 description: TMail rule_filter extension
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -15,7 +15,7 @@ dependencies:
   jmap_dart_client:
     git:
       url: https://github.com/linagora/jmap-dart-client.git
-      ref: main
+      ref: bugfix/save-identity-for-draft
 
   ### Dependencies from pub.dev ###
   equatable: 2.0.5
@@ -43,7 +43,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
   uses-material-design: true
   # To add assets to your package, add an assets section, like this:
   # assets:

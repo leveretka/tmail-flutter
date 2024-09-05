@@ -65,7 +65,7 @@ dependencies:
   jmap_dart_client:
     git:
       url: https://github.com/linagora/jmap-dart-client.git
-      ref: main
+      ref: bugfix/save-identity-for-draft
 
   contacts_service:
     git:
@@ -264,7 +264,6 @@ dev_dependencies:
   http_mock_adapter: 0.4.2
 
 dependency_overrides:
-
   firebase_core_platform_interface: 4.6.0
 
   # TODO: replace when upstream PR is merged:
