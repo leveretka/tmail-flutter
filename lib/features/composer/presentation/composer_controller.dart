@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:html/parser.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:jmap_dart_client/jmap/account_id.dart';
 import 'package:jmap_dart_client/jmap/identities/identity.dart';
@@ -1418,6 +1419,7 @@ class ComposerController extends BaseController with DragDropFileMixin implement
     if (composerArguments.value?.emailActionType == EmailActionType.editDraft) {
       _setUpRequestReadReceiptForDraftEmail(success.emailCurrent);
       _restoreIdentityFromHeader(success.emailCurrent);
+      _restoreCollapsibleButton(success.emailCurrent);
     }
   }
 
@@ -1427,6 +1429,17 @@ class ComposerController extends BaseController with DragDropFileMixin implement
     final selectedIdentityFromHeader = _selectedIdentityFromId(identityIdFromHeader);
     if (selectedIdentityFromHeader == null) return;
     identitySelected.value = selectedIdentityFromHeader;
+  }
+
+  Future<void> _restoreCollapsibleButton(Email? email) async {
+    final emailContent = email?.emailContentList.asHtmlString;
+    if (emailContent == null) return;
+    final emailDocument = parse(emailContent);
+    final signature = emailDocument.querySelector('div.tmail-signature');
+    if (signature == null) return;
+    await Future.delayed(const Duration(milliseconds: 300), () async {
+      await _applySignature(signature.innerHtml);
+    });
   }
 
   void _transformHtmlEmailContent(String? emailContent) {
