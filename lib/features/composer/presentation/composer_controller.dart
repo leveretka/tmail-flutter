@@ -1720,7 +1720,9 @@ class ComposerController extends BaseController with DragDropFileMixin implement
     }
 
     if (newIdentity.signatureAsString.isNotEmpty == true) {
-      await _applySignature(newIdentity.signatureAsString.asSignatureHtml());
+      await Future.delayed(const Duration(milliseconds: 300), () {
+        _applySignature(newIdentity.signatureAsString.asSignatureHtml());
+      });
     }
 
     if (PlatformInfo.isMobile) {
