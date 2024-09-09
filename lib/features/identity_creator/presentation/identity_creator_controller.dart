@@ -152,6 +152,7 @@ class IdentityCreatorController extends BaseController with DragDropFileMixin {
     }
     log('IdentityCreatorController::onInit():arguments: ${Get.arguments}');
     arguments = Get.arguments;
+    _initFocusListener();
   }
 
   @override
@@ -171,6 +172,28 @@ class IdentityCreatorController extends BaseController with DragDropFileMixin {
       _setUpValueFromIdentity();
       _getAllIdentities();
       _triggerBrowserEventListener();
+    }
+  }
+
+  void _initFocusListener() {
+    inputNameIdentityFocusNode.addListener(_onInputNameIdentityListener);
+    inputBccIdentityFocusNode.addListener(_onInputBccIdentityListener);
+  }
+
+  void _removeFocusListener() {
+    inputNameIdentityFocusNode.removeListener(_onInputNameIdentityListener);
+    inputBccIdentityFocusNode.removeListener(_onInputBccIdentityListener);
+  }
+
+  void _onInputNameIdentityListener() {
+    if (inputNameIdentityFocusNode.hasFocus && PlatformInfo.isMobile) {
+      richTextMobileTabletController?.richTextController.hideRichTextView();
+    }
+  }
+
+  void _onInputBccIdentityListener() {
+    if (inputBccIdentityFocusNode.hasFocus && PlatformInfo.isMobile) {
+      richTextMobileTabletController?.richTextController.hideRichTextView();
     }
   }
 
@@ -225,6 +248,7 @@ class IdentityCreatorController extends BaseController with DragDropFileMixin {
   void onClose() {
     log('IdentityCreatorController::onClose():');
     isLoadSignatureCompleted = false;
+    _removeFocusListener();
     inputNameIdentityFocusNode.dispose();
     inputBccIdentityFocusNode.dispose();
     inputNameIdentityController.dispose();
