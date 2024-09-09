@@ -20,13 +20,20 @@ import 'create_new_and_save_email_to_drafts_interactor_test.mocks.dart';
   MockSpec<ComposerRepository>(),
 ])
 void main() {
-  final emailRepository = MockEmailRepository();
-  final mailboxRepository = MockMailboxRepository();
-  final composerRepository = MockComposerRepository();
-  final createNewAndSaveEmailToDraftsInteractor = CreateNewAndSaveEmailToDraftsInteractor(
-    emailRepository,
-    mailboxRepository,
-    composerRepository);
+  late MockEmailRepository emailRepository;
+  late MockMailboxRepository mailboxRepository;
+  late MockComposerRepository composerRepository;
+  late CreateNewAndSaveEmailToDraftsInteractor createNewAndSaveEmailToDraftsInteractor;
+
+  setUp(() {
+    emailRepository = MockEmailRepository();
+    mailboxRepository = MockMailboxRepository();
+    composerRepository = MockComposerRepository();
+    createNewAndSaveEmailToDraftsInteractor = CreateNewAndSaveEmailToDraftsInteractor(
+      emailRepository,
+      mailboxRepository,
+      composerRepository);
+  });
   
   group('create new and save email to drafts interactor test:', () {
     test(
