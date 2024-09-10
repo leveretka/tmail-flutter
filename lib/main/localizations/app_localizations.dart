@@ -4187,4 +4187,11 @@ class AppLocalizations {
       name: 'spamFolderNotFound',
     );
   }
+
+  String get warningRuleCannotAppliedWhenTargetFolderNoExist {
+    return Intl.message(
+      'The rule cannot be applied as the target folder do no longer exist.',
+      name: 'warningRuleCannotAppliedWhenTargetFolderNoExist',
+    );
+  }
 }
